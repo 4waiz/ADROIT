@@ -1,0 +1,34 @@
+name: tests
+
+# The fast tier: no GPU. It checks the public surface, the bundled assets and
+# every example's shape. Scenes are built and stepped by the medium tier, which
+# needs an NVIDIA GPU and is run by hand on a GPU machine; no workflow runs it:
+#   uv run python scripts/testrun.py --tier medium
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fast:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # pyroki's jaxls needs Python 3.12 syntax; see requires-python.
+        python-version: ["3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-suffix: ${{ matrix.python-version }}
+      - name: Fast tier
+        run: uv run --extra dev --python ${{ matrix.python-version }} python scripts/testrun.py --tier fast
