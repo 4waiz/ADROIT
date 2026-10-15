@@ -1,0 +1,113 @@
+/* SPDX-License-Identifier: Apache-2.0
+   BRIDGE design tokens. Two themes, one vocabulary.
+   The accent is the BRIDGE wordmark's own orange (#FF4713 on dark, #EF4B25 on
+   light, sampled from light.png and dark.png); the neutral is its graphite. */
+
+:root {
+  --font-ui: "Figtree Variable", "Figtree", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --font-arabic: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+
+  --radius: 2px;
+  --radius-lg: 4px;
+  --bar-h: 48px;
+  --control-h: 28px;
+  --control-h-sm: 24px;
+  --gap: 8px;
+  --pad: 12px;
+
+  --fs-xs: 10.5px;
+  --fs-sm: 11.5px;
+  --fs: 12.5px;
+  --fs-md: 13.5px;
+  --fs-lg: 15px;
+  --fs-xl: 18px;
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --t-fast: 120ms;
+  --t: 200ms;
+
+  --z-hud: 10;
+  --z-panel: 20;
+  --z-menu: 60;
+  --z-dialog: 80;
+  --z-toast: 90;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-0: #090b0d;
+  --bg-1: #0f1215;
+  --bg-2: #14181c;
+  --bg-3: #1b2026;
+  --bg-4: #232930;
+  --bg-hover: #1f252b;
+  --bg-active: #262d34;
+  --line: #222830;
+  --line-strong: #2f363f;
+  --text-0: #eceff2;
+  --text-1: #b7bec6;
+  --text-2: #808a95;
+  --text-3: #5d6670;
+  --brand-graphite: #4a4f55;
+  --accent: #ff4713;
+  --accent-hover: #ff6a3d;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(255, 71, 19, 0.14);
+  --accent-line: rgba(255, 71, 19, 0.45);
+  --ok: #37c088;
+  --ok-soft: rgba(55, 192, 136, 0.14);
+  --warn: #f0b429;
+  --warn-soft: rgba(240, 180, 41, 0.14);
+  --err: #ff5c5c;
+  --err-soft: rgba(255, 92, 92, 0.14);
+  --info: #4ea8ff;
+  --info-soft: rgba(78, 168, 255, 0.14);
+  --axis-x: #ff5a52;
+  --axis-y: #4cd07d;
+  --axis-z: #4b9dff;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.35);
+  --hud-bg: rgba(12, 15, 18, 0.78);
+  --hud-line: rgba(255, 255, 255, 0.08);
+  --scrim: rgba(3, 4, 6, 0.62);
+  --plot-grid: rgba(255, 255, 255, 0.06);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg-0: #e7eaed;
+  --bg-1: #f6f7f8;
+  --bg-2: #ffffff;
+  --bg-3: #eef0f2;
+  --bg-4: #e3e7ea;
+  --bg-hover: #eceff1;
+  --bg-active: #e1e5e8;
+  --line: #dadfe3;
+  --line-strong: #c7cdd3;
+  --text-0: #1b1f23;
+  --text-1: #434b51;
+  --text-2: #6a737b;
+  --text-3: #8e979f;
+  --brand-graphite: #4a4f55;
+  --accent: #e8461d;
+  --accent-hover: #ef4b25;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(239, 75, 37, 0.1);
+  --accent-line: rgba(239, 75, 37, 0.45);
+  --ok: #138a5c;
+  --ok-soft: rgba(19, 138, 92, 0.1);
+  --warn: #a86a00;
+  --warn-soft: rgba(196, 128, 0, 0.12);
+  --err: #d42c2c;
+  --err-soft: rgba(212, 44, 44, 0.1);
+  --info: #1f6fd1;
+  --info-soft: rgba(31, 111, 209, 0.1);
+  --axis-x: #e0352b;
+  --axis-y: #1f9e4f;
+  --axis-z: #1d6be0;
+  --shadow: 0 10px 30px rgba(20, 28, 36, 0.14), 0 2px 6px rgba(20, 28, 36, 0.08);
+  --hud-bg: rgba(255, 255, 255, 0.86);
+  --hud-line: rgba(20, 28, 36, 0.1);
+  --scrim: rgba(18, 24, 30, 0.38);
+  --plot-grid: rgba(20, 28, 36, 0.07);
+}
