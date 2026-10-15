@@ -25,3 +25,9 @@ robosimstudio_stripped_*.xml
 # A leader arm's own calibration, written by scripts/calibrate_leader_arms.py.
 # The tracked scripts/calibration/yam_leader.json is a sample.
 scripts/calibration/local/
+
+# BRIDGE: the client's packages and its build (`npm run build` writes bridge_studio/static).
+frontend/node_modules/
+frontend/dist/
+bridge_studio/static/
+*.tsbuildinfo

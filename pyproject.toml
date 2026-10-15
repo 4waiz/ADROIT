@@ -94,6 +94,10 @@ gap = [
 # which compiles its kernels at first use.
 curobo = ["nvidia-curobo[cu12]"]
 dev = ["ruff==0.16.1", "pyyaml"]
+# BRIDGE | Digital Twin Studio's service: the web API and socket the browser
+# client talks to (bridge_studio). websockets is viser's already; it is named
+# because uvicorn serves the socket through it.
+bridge = ["fastapi>=0.115", "uvicorn>=0.30", "websockets>=13"]
 
 # What `uv sync` and `uv run` install from a checkout without being asked
 # (default-groups below): the [rtx] extra, so a GPU that can path trace does.
@@ -108,7 +112,11 @@ dev = ["ruff==0.16.1", "pyyaml"]
 # default group, so a plain `uv sync` leaves it out.
 [dependency-groups]
 rtx = ["robosimstudio[rtx]; sys_platform == 'linux' or sys_platform == 'win32'"]
+bridge = ["robosimstudio[bridge]"]
 media = ["playwright>=1.55", "pillow"]
+
+[project.scripts]
+bridge-studio = "bridge_studio.__main__:main"
 
 [project.urls]
 Homepage = "https://robosimstudio.github.io/"
@@ -130,7 +138,11 @@ path = "robosimstudio/_version.py"
 # harness) and the policy agent (a graph as the policy). Imports go one way: the
 # library names neither the studio nor the agents.
 [tool.hatch.build.targets.wheel]
+# bridge_studio/static is the built client: git-ignored output, carried by the
+# wheel through `artifacts` below when it has been built.
+artifacts = ["bridge_studio/static/**"]
 packages = [
+    "bridge_studio",
     "robosimstudio",
     "robosimstudio_bench",
     "robosimstudio_policy_agent",
@@ -152,6 +164,9 @@ packages = [
 
 [tool.hatch.build.targets.sdist]
 include = [
+    "/bridge_studio",
+    "/frontend",
+    "/docs",
     "/robosimstudio",
     "/robosimstudio_bench",
     "/robosimstudio_policy_agent",
@@ -185,7 +200,7 @@ explicit = true
 # gym, bddl) and pins mujoco 3.6. Nothing robosimstudio_policy_agent imports from it
 # loads any of those, so they are dropped, and mujoco follows Newton.
 [tool.uv]
-default-groups = ["rtx"]
+default-groups = ["rtx", "bridge"]
 override-dependencies = [
     "PyOpenGL>=3.1.7",
     "libero; sys_platform == 'never'",
