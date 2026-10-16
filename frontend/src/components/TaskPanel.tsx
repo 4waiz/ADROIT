@@ -328,6 +328,11 @@ export function TaskPanel() {
             <div className={`notice ${status.success.done ? "ok" : ""}`}>
               <span>{status.success.detail}</span>
             </div>
+            {status.goalMet && !status.success.done && (
+              <div className="notice ok" style={{ marginTop: 6 }}>
+                <span>{t("tasks.metAt", { t: status.goalMet.simTime.toFixed(2), detail: status.goalMet.detail })}</span>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -23,6 +23,7 @@ import math
 import sys
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -169,35 +170,45 @@ _CHECKS: dict[str, Callable[[], tuple[bool, str]]] = {"cuda": _has_cuda, "superd
 
 
 def _demo_module(folder: str, name: str) -> Any:
-    """Import ``examples/08_demos/<folder>/<name>.py``, with its folder importable for its siblings.
+    """Import ``examples/08_demos/<folder>/<name>.py`` under its bare name, as a script run from its folder does.
 
-    The demos import their neighbours by bare name (``import bar``), as a script
-    run from its folder does, so the folder goes on ``sys.path`` for the import.
-    A module already imported is reused: a scenario rebuilt is the same code.
+    The demos import their neighbours by bare name (``import bar``), so each is
+    registered under that name and the folder is on ``sys.path`` while it loads:
+    a sibling's ``import bar`` then finds this same module instead of executing
+    the file a second time, which would register its entity classes twice. A
+    module already imported is reused: a scenario rebuilt is the same code.
     """
     directory = repo_root() / "examples" / "08_demos" / folder
-    key = f"bridge_demo_{folder}_{name}"
-    if key in sys.modules:
-        return sys.modules[key]
     path = directory / f"{name}.py"
+    existing = sys.modules.get(name)
+    if existing is not None and Path(getattr(existing, "__file__", "") or "").resolve() == path.resolve():
+        return existing
+    if existing is not None:
+        raise ImportError(f"a module named {name!r} is already loaded from {existing.__file__}; cannot load {path}")
     if not path.is_file():
         raise FileNotFoundError(f"the demo module {path} is missing from this checkout")
     added = str(directory) not in sys.path
     if added:
         sys.path.insert(0, str(directory))
     try:
-        spec = importlib.util.spec_from_file_location(key, path)
+        spec = importlib.util.spec_from_file_location(name, path)
         assert spec is not None and spec.loader is not None
         module = importlib.util.module_from_spec(spec)
-        sys.modules[key] = module
+        sys.modules[name] = module
         spec.loader.exec_module(module)
     except BaseException:
-        sys.modules.pop(key, None)
+        sys.modules.pop(name, None)
         raise
     finally:
         if added and str(directory) in sys.path:
             sys.path.remove(str(directory))
     return module
+
+
+WIPE_GOAL = 0.90
+"""The share of the stripe a take must clean: the demo's own acceptance test
+(tests/test_demo_wipe_the_bar.py). The routine's CLEANED (0.96) is only where it stops
+stroking early; its reference takes end at 0.955-0.959."""
 
 
 def _build_wipe() -> BuiltScenario:
@@ -210,8 +221,8 @@ def _build_wipe() -> BuiltScenario:
     def success(sim) -> dict[str, Any]:
         cleaned = float(stripe.cleaned)
         return {
-            "done": cleaned >= float(routine.CLEANED),
-            "detail": f"{cleaned:.0%} of the marker stripe cleaned (goal {routine.CLEANED:.0%})",
+            "done": cleaned >= WIPE_GOAL,
+            "detail": f"{cleaned:.1%} of the marker stripe cleaned (goal {WIPE_GOAL:.0%})",
             "metrics": {
                 "cleaned": round(cleaned, 4),
                 "pressN": round(float(stripe.press), 3),
@@ -562,7 +573,7 @@ def _build_sponge() -> BuiltScenario:
         from robosimstudio_studio.routine import grip, reach, wait
 
         driver = session.arms["right"]
-        home_pos, home_quat = driver.ik.home_pose
+        home_quat = driver.ik.home_pose[1]
         surface = float(sim.scene.handles.surface_z)
         middle = np.asarray(sim["sponge"].particle_q, dtype=np.float64).mean(axis=0)
         press = np.array([middle[0], middle[1], surface + 0.020])
@@ -570,11 +581,10 @@ def _build_sponge() -> BuiltScenario:
         yield from reach(session, "right", press + np.array([0.0, 0.0, 0.08]), home_quat, speed=0.15)
         yield from reach(session, "right", press, home_quat, speed=0.05, tolerance=0.01)
         yield from grip(session, "right", 1.0, 1.2)
+        # Lift and hold, as the example ends: the sponge stays squeezed in the air until the
+        # operator opens the hand.
         yield from reach(session, "right", press + np.array([0.0, 0.0, 0.10]), home_quat, speed=0.05, tolerance=0.015)
         yield from wait(session, 1.5)
-        yield from reach(session, "right", press + np.array([0.0, 0.0, 0.01]), home_quat, speed=0.05, tolerance=0.015)
-        yield from grip(session, "right", 0.0, 1.0)
-        yield from reach(session, "right", home_pos, home_quat, speed=0.15)
 
     def success(sim) -> dict[str, Any]:
         q = np.asarray(sim["sponge"].particle_q, dtype=np.float64)
@@ -622,7 +632,7 @@ def builtin_registry() -> ScenarioRegistry:
                 build=_build_wipe,
                 requires=("cuda", "superdex"),
                 media="examples/08_demos/wipe_the_bar/media/wipe_the_bar.webp",
-                success_label="At least 96% of the stripe is wiped clean.",
+                success_label="At least 90% of the marker stripe is wiped clean, as the demo's own test requires.",
                 source="examples/08_demos/wipe_the_bar",
             ),
             Scenario(
@@ -661,7 +671,8 @@ def builtin_registry() -> ScenarioRegistry:
                 physics="MuJoCo Warp, both arms and both cubes in one island, 50 Hz over 500 Hz",
                 category="multi-arm",
                 build=_build_dual_arm,
-                media="",
+                # A capture of this scenario in BRIDGE's own viewport, mid-routine.
+                media="docs/bridge/media/dual_arm.webp",
                 success_label="Each cube rests inside its own zone.",
                 source="bridge_studio/scenarios.py",
             ),

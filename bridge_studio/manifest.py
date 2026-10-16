@@ -518,16 +518,21 @@ def physics_summary(sim: Any) -> dict[str, Any]:
         "coupler": str(getattr(manifest, "coupler", "") or ""),
         "islands": islands,
         "collision": {
-            "softContactMargin": float(collision.soft_contact_margin),
-            "rigidGap": float(collision.rigid_gap),
-            "contactKe": float(collision.contact_ke),
-            "contactKd": float(collision.contact_kd),
+            # Optional in a CollisionSpec: None means the solver's own default, and is sent as such.
+            "softContactMargin": _optional(collision.soft_contact_margin),
+            "rigidGap": _optional(collision.rigid_gap),
+            "contactKe": _optional(collision.contact_ke),
+            "contactKd": _optional(collision.contact_kd),
             "fullSurfaceContact": bool(collision.full_surface_contact),
         },
         "summary": summary,
         "problems": problems,
         "warnings": [str(w) for w in (getattr(program, "warnings", None) or [])],
     }
+
+
+def _optional(value: Any) -> float | None:
+    return None if value is None else float(value)
 
 
 def _jsonable(value: Any) -> Any:

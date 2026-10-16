@@ -6,7 +6,7 @@
   preset for something the preset cannot simulate, repeats a name, or is out
   of range -- and the default document passes.
 * Every command the host answers is documented in the catalog, and the reverse.
-* The manifest's shape-flag bits are Newton's.
+* The manifest's shape-flag bits are Newton's; a demo scenario rebuilt reuses its modules.
 * The English and Arabic dictionaries have the same keys and placeholders.
 * A task is compiled against the scene it would run on, and refused by step.
 * The reference store refuses what it cannot read and adopts a photo.
@@ -172,6 +172,18 @@ class TestContracts(unittest.TestCase):
             for folder in ("wipe_the_bar", "fold_the_towel", "route_the_cable"):
                 if folder in scenario.source:
                     self.assertTrue((ROOT / scenario.source).is_dir())
+
+    def test_a_demo_is_imported_once_and_reused_on_a_rebuild(self) -> None:
+        import sys
+
+        from bridge_studio.scenarios import _demo_module
+
+        # A rebuilt scenario asks for its demo's modules again: it gets the same ones, and the
+        # neighbour the demo imports by bare name (``import board``) is that same module too.
+        first = _demo_module("route_the_cable", "route_the_cable")
+        self.assertIs(_demo_module("route_the_cable", "route_the_cable"), first)
+        self.assertIs(_demo_module("route_the_cable", "board"), first.board)
+        self.assertIs(sys.modules["board"], first.board)
 
 
 class TestTranslations(unittest.TestCase):

@@ -115,6 +115,7 @@ export const en = {
   "quality.ultraHint": "4K shadow map, ambient occlusion, SMAA; up to 2× resolution.",
   "goal.goal": "Goal",
   "goal.met": "Goal met",
+  "goal.metAt": "Met at {t} s",
   "goal.task": "Task",
   "goal.routine": "Routine",
   "goal.running": "running",
@@ -279,6 +280,7 @@ export const en = {
   "physics.gap": "Rigid gap",
   "physics.stiffness": "Stiffness",
   "physics.fullSurface": "Full-surface contact",
+  "physics.solverDefault": "solver default",
   "physics.rebuildNote": "These are fixed when the scene is compiled. Change the physics preset in the Builder and rebuild to alter them.",
   "physics.summary": "Program summary",
 
@@ -418,6 +420,7 @@ export const en = {
   "tasks.warning": "warning",
   "tasks.idle": "Nothing is running. Start a routine or run a sequence.",
   "tasks.goal": "Success measure",
+  "tasks.metAt": "First met at {t} s of simulated time: {detail}",
   "op.home": "Home",
   "op.move": "Move",
   "op.grip": "Grip",

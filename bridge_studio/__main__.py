@@ -11,7 +11,9 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
+import traceback
 import webbrowser
 
 from . import PRODUCT, __version__
@@ -41,8 +43,22 @@ def _serve(args: argparse.Namespace) -> int:
         )
     if args.open:
         webbrowser.open(url)
-    uvicorn.run(create_app(config), host=args.host, port=args.port, log_level="warning", ws_ping_interval=20.0)
-    return 0
+    code = 0
+    try:
+        uvicorn.run(create_app(config), host=args.host, port=args.port, log_level="warning", ws_ping_interval=20.0)
+    except KeyboardInterrupt:
+        pass  # Ctrl+C: uvicorn has shut the app down already, then re-raised the signal.
+    except SystemExit as exc:  # uvicorn's own exit, such as a port already taken
+        code = exc.code if isinstance(exc.code, int) else 1
+    except BaseException:
+        traceback.print_exc()
+        code = 1
+    # The app's shutdown has stopped the host and released the scene by now. A native solver
+    # library (a co-simulated FEM engine) can leave a thread the interpreter would wait on
+    # forever at exit, so the process ends here rather than in finalisation.
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os._exit(code)
 
 
 def _doctor(_args: argparse.Namespace) -> int:

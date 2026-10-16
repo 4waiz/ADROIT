@@ -198,6 +198,9 @@ class SimHost:
         self.runner: Runner | None = None
         self.last_runner: dict[str, Any] | None = None
         self.success: dict[str, Any] | None = None
+        # When the success measure first read done since the last build or reset: a goal met in
+        # passing (a lift held, then set down) stays met, with the simulated time it was seen.
+        self.goal_met: dict[str, Any] | None = None
         self.notes: list[str] = []
         self._effort_map: tuple[Any, np.ndarray] | None = None
         self._contacts: dict[str, Any] = {"available": False, "count": 0, "items": []}
@@ -388,6 +391,13 @@ class SimHost:
                 self._status_dirty = True
                 time.sleep(0.05)
         self.bus.close()
+        # Give the scene back on the thread that owns it, so its device memory and any
+        # co-simulated engine are released before the process goes.
+        if self.sim is not None:
+            try:
+                self.sim.close()
+            except Exception:
+                pass
 
     def _advance(self) -> None:
         """One control step: arms, the runner, the scenario's hooks, physics."""
@@ -403,6 +413,10 @@ class SimHost:
             for hook in self.built.each_step:
                 hook(sim)
         sim.step_teleop()
+        # A step only enqueues the device's work; reading its result back is where that work is
+        # waited for. Wait here, so the physics time is what the step costs and not what it took
+        # to launch it. The frame and the next step read this same copy, so nothing is lost.
+        _ = sim.pipeline.snapshot
         t2 = time.perf_counter()
         self._ik_times.append(t1 - t0)
         self._step_times.append(t2 - t1)
@@ -597,6 +611,12 @@ class SimHost:
         self.success = sanitize(verdict)
         if verdict.get("done") and not before:
             self._event("success", "scenario", f"Success: {verdict.get('detail', '')}")
+        if verdict.get("done") and self.goal_met is None:
+            self.goal_met = {
+                "simTime": round(float(self.sim.sim_time), 3),
+                "step": int(self.sim.step_count),
+                "detail": str(verdict.get("detail", "")),
+            }
         self._status_dirty = True
 
     def _maybe_status(self) -> None:
@@ -628,6 +648,7 @@ class SimHost:
             "runner": None if self.runner is None else self.runner.summary(control_hz),
             "lastRunner": self.last_runner,
             "success": self.success,
+            "goalMet": self.goal_met,
             "routines": list(self.built.routines) if self.built else [],
             "arms": {
                 name: {"mode": d.mode, "source": d.source, "suspended": d.suspended, "owner": self._owner(name)}
@@ -731,6 +752,7 @@ class SimHost:
         self.notes = list(built.notes)
         self.generation += 1
         self.success = None
+        self.goal_met = None
         self._success_at = 0.0
         self._effort_map = None
         self._contacts = {"available": False, "count": 0, "items": []}
@@ -997,6 +1019,7 @@ class SimHost:
             driver.on_reset(state)
         self.pending_steps = 0
         self.success = None
+        self.goal_met = None
         self._success_at = 0.0
         self.last_runner = None
         self._contacts = {"available": False, "count": 0, "items": []}

@@ -156,10 +156,10 @@ export interface PhysicsInfo {
   coupler: string;
   islands: IslandInfo[];
   collision: {
-    softContactMargin: number;
-    rigidGap: number;
-    contactKe: number;
-    contactKd: number;
+    softContactMargin: number | null;
+    rigidGap: number | null;
+    contactKe: number | null;
+    contactKd: number | null;
     fullSurfaceContact: boolean;
   };
   summary: string;
@@ -329,6 +329,8 @@ export interface HostStatus {
   runner: RunnerInfo | null;
   lastRunner: RunnerInfo | null;
   success: SuccessVerdict | null;
+  /** When the success measure first read done since the last build or reset (simulated time). */
+  goalMet: { simTime: number; step: number; detail: string } | null;
   routines: string[];
   arms: Record<string, { mode: string; source: string; suspended: boolean; owner: string }>;
   notes: string[];

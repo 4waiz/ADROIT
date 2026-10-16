@@ -10,6 +10,8 @@ import { useT } from "../i18n";
 import { useStore } from "../state/store";
 import { NumberField } from "./ui/primitives";
 
+const mm = (v: number | null, fallback: string) => (v === null ? fallback : `${(v * 1000).toFixed(1)} mm`);
+
 export function PhysicsPanel() {
   const t = useT();
   const manifest = useStore((s) => s.manifest);
@@ -110,11 +112,14 @@ export function PhysicsPanel() {
         </div>
         <dl className="kv">
           <dt>{t("physics.margin")}</dt>
-          <dd className="mono">{(p.collision.softContactMargin * 1000).toFixed(1)} mm</dd>
+          <dd className="mono">{mm(p.collision.softContactMargin, t("physics.solverDefault"))}</dd>
           <dt>{t("physics.gap")}</dt>
-          <dd className="mono">{(p.collision.rigidGap * 1000).toFixed(1)} mm</dd>
+          <dd className="mono">{mm(p.collision.rigidGap, t("physics.solverDefault"))}</dd>
           <dt>{t("physics.stiffness")}</dt>
-          <dd className="mono">ke {p.collision.contactKe.toExponential(1)} · kd {p.collision.contactKd.toExponential(1)}</dd>
+          <dd className="mono">
+            ke {p.collision.contactKe === null ? t("physics.solverDefault") : p.collision.contactKe.toExponential(1)} · kd{" "}
+            {p.collision.contactKd === null ? t("physics.solverDefault") : p.collision.contactKd.toExponential(1)}
+          </dd>
           <dt>{t("physics.fullSurface")}</dt>
           <dd>{p.collision.fullSurfaceContact ? t("common.yes") : t("common.no")}</dd>
         </dl>

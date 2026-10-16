@@ -118,6 +118,7 @@ export const ar: Record<keyof typeof en, string> = {
   "quality.ultraHint": "خريطة ظلال 4K، إطباق محيطي، تنعيم SMAA؛ دقة حتى 2×.",
   "goal.goal": "الهدف",
   "goal.met": "تحقق الهدف",
+  "goal.metAt": "تحقق عند {t} ث",
   "goal.task": "مهمة",
   "goal.routine": "روتين",
   "goal.running": "قيد التنفيذ",
@@ -282,6 +283,7 @@ export const ar: Record<keyof typeof en, string> = {
   "physics.gap": "الفجوة الصلبة",
   "physics.stiffness": "الصلابة",
   "physics.fullSurface": "تلامس كامل السطح",
+  "physics.solverDefault": "القيمة الافتراضية للحلّال",
   "physics.rebuildNote": "تُثبَّت هذه القيم عند ترجمة المشهد. غيّر الإعداد الفيزيائي المسبق في أداة البناء وأعد البناء لتعديلها.",
   "physics.summary": "ملخص البرنامج",
 
@@ -421,6 +423,7 @@ export const ar: Record<keyof typeof en, string> = {
   "tasks.warning": "تحذير",
   "tasks.idle": "لا شيء قيد التنفيذ. ابدأ روتينًا أو شغّل تسلسلًا.",
   "tasks.goal": "مقياس النجاح",
+  "tasks.metAt": "تحقق أول مرة عند {t} ث من زمن المحاكاة: {detail}",
   "op.home": "الأصل",
   "op.move": "تحريك",
   "op.grip": "قبض",

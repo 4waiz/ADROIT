@@ -182,6 +182,7 @@ export function Viewport() {
   ];
   const armSelected = selected?.startsWith("arm:") ?? false;
   const success = status?.success;
+  const goalMet = status?.goalMet ?? null;
   const runner = status?.runner;
 
   return (
@@ -320,6 +321,10 @@ export function Viewport() {
             <>
               {success.done ? (
                 <span className="badge ok"><CheckCircle2 size={11} /> {t("goal.met")}</span>
+              ) : goalMet ? (
+                <span className="badge ok" title={goalMet.detail}>
+                  <CheckCircle2 size={11} /> {t("goal.metAt", { t: goalMet.simTime.toFixed(1) })}
+                </span>
               ) : (
                 <span className="badge"><Target size={11} /> {t("goal.goal")}</span>
               )}

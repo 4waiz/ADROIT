@@ -78,6 +78,17 @@ def _slug(text: str) -> str:
     return slug or "workcell"
 
 
+def _quiet_resets(loop: asyncio.AbstractEventLoop, context: dict[str, Any]) -> None:
+    """The event loop's error report, less a client that hung up while its socket was closing.
+
+    Windows' proactor loop reports that (a closed tab, a poll that gave up) as a traceback;
+    it is not an error in the service. Everything else is reported as before.
+    """
+    if isinstance(context.get("exception"), ConnectionResetError):
+        return
+    loop.default_exception_handler(context)
+
+
 def create_app(config: BridgeConfig | None = None, host: SimHost | None = None) -> FastAPI:
     """The application, with its host started when the app starts and stopped when it stops."""
     config = config or BridgeConfig()
@@ -87,11 +98,13 @@ def create_app(config: BridgeConfig | None = None, host: SimHost | None = None) 
 
     @contextlib.asynccontextmanager
     async def lifespan(app: FastAPI):
+        asyncio.get_running_loop().set_exception_handler(_quiet_resets)
         host.start()
         try:
             yield
         finally:
             host.stop()
+            print("[bridge] simulation stopped", flush=True)
 
     app = FastAPI(
         title=PRODUCT,
