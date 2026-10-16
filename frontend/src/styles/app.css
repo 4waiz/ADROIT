@@ -1109,6 +1109,18 @@ a:hover {
   white-space: nowrap;
 }
 
+.hud-env {
+  bottom: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: var(--fs-sm);
+  color: var(--text-1);
+}
+
 .hud-axes {
   bottom: 60px;
   inset-inline-end: 12px;
@@ -1765,4 +1777,571 @@ pre.license {
 
 [dir="rtl"] .flip-rtl {
   transform: scaleX(-1);
+}
+
+/* ------------------------------------------------------------------ simple mode */
+/* One plain panel beside the factory; the left panel and the engineering dock step aside. */
+.app.mode-simple .workspace {
+  grid-template-columns: 0 minmax(0, 1fr) auto;
+}
+
+.mode-switch {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 2px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--bg-2);
+}
+.mode-switch button {
+  height: 24px;
+  padding-inline: 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+.mode-switch button[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.mode-switch button:hover:not([aria-pressed="true"]) {
+  color: var(--text-0);
+}
+
+.simple-panel {
+  width: 356px;
+  background: var(--bg-1);
+}
+.simple-panel .s-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.s-card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-2);
+  padding: 14px;
+}
+.s-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.s-card-head h3 {
+  margin: 0;
+  font-size: var(--fs-md);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.s-card-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.s-scene-title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.s-text {
+  margin: 0 0 10px;
+  font-size: var(--fs);
+  line-height: 1.5;
+  color: var(--text-1);
+}
+.s-facts {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  margin-bottom: 12px;
+}
+.s-facts b {
+  color: var(--text-0);
+  font-weight: 600;
+}
+.s-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.s-row .btn {
+  height: 34px;
+}
+.s-label {
+  margin: 12px 0 8px;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+.s-hint {
+  margin: 8px 0 0;
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  color: var(--text-2);
+}
+.s-note {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--bg-3);
+  font-size: var(--fs-sm);
+  color: var(--text-1);
+}
+.s-note.ok {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+.s-note.err {
+  background: var(--err-soft);
+  color: var(--err);
+}
+.s-segmented {
+  display: flex;
+  padding: 3px;
+  gap: 3px;
+  border-radius: 9px;
+  background: var(--bg-3);
+  margin-bottom: 10px;
+}
+.s-segmented button {
+  flex: 1;
+  height: 30px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-1);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+.s-segmented.small button {
+  height: 26px;
+  font-size: var(--fs-xs);
+}
+.s-segmented button[aria-pressed="true"] {
+  background: var(--bg-2);
+  color: var(--text-0);
+  box-shadow: var(--shadow);
+}
+.s-pad {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.s-dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 44px);
+  grid-template-rows: repeat(3, 40px);
+  gap: 4px;
+}
+.s-dpad .btn,
+.s-updown .btn {
+  height: 100%;
+  border-radius: 8px;
+  padding: 0;
+}
+.s-dpad-centre {
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  color: var(--text-3);
+  border: 1px dashed var(--line-strong);
+}
+.s-updown {
+  flex: 1;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 4px;
+  height: 128px;
+}
+.s-updown .btn {
+  gap: 4px;
+}
+.s-hand {
+  display: grid;
+  gap: 8px;
+}
+.btn.s-big {
+  height: 42px;
+  border-radius: 9px;
+  font-size: var(--fs-md);
+}
+.btn.s-wide {
+  width: 100%;
+  height: 34px;
+  margin-top: 10px;
+  border-radius: 8px;
+}
+.s-meter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+.s-meter-track {
+  flex: 1;
+  height: 6px;
+  border-radius: 6px;
+  background: var(--bg-4);
+  overflow: hidden;
+}
+.s-meter-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+  transition: width var(--t) var(--ease);
+}
+.s-list {
+  display: grid;
+  gap: 6px;
+}
+.s-program {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding-inline: 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--bg-1);
+  color: var(--text-0);
+  font-size: var(--fs);
+  font-weight: 600;
+  text-align: start;
+  cursor: pointer;
+}
+.s-program:hover:not(:disabled) {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+.s-program .muted {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.s-play {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.s-running {
+  padding: 12px;
+  border-radius: 9px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+}
+.s-running-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs);
+  margin-bottom: 8px;
+}
+.s-pulse {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: s-pulse 1.4s var(--ease) infinite;
+}
+@keyframes s-pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--accent-line);
+  }
+  100% {
+    box-shadow: 0 0 0 9px rgba(0, 0, 0, 0);
+  }
+}
+.s-progress {
+  height: 5px;
+  border-radius: 5px;
+  background: var(--bg-4);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.s-progress div {
+  height: 100%;
+  background: var(--accent);
+  transition: width var(--t) var(--ease);
+}
+.s-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.s-wizard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: var(--bg-3);
+  font-size: var(--fs-sm);
+  color: var(--text-1);
+}
+.s-wizard select {
+  height: 24px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--bg-2);
+  color: var(--text-0);
+  font-size: var(--fs-sm);
+}
+.s-empty {
+  margin: 10px 0 0;
+  padding: 14px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 9px;
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+.s-steps {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.s-steps li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px 6px 8px;
+  border-radius: 8px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  font-size: var(--fs);
+}
+.s-steps li.is-running {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+.s-steps li.is-done {
+  opacity: 0.65;
+}
+.s-steps li.is-failed {
+  border-color: color-mix(in srgb, var(--err) 45%, transparent);
+}
+.s-step-n {
+  width: 18px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+.s-step-icon {
+  display: inline-grid;
+  place-items: center;
+  color: var(--accent);
+}
+.s-goal {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: var(--bg-3);
+  color: var(--text-2);
+}
+.s-goal div {
+  display: grid;
+  gap: 2px;
+  font-size: var(--fs);
+  line-height: 1.45;
+  color: var(--text-1);
+}
+.s-goal b {
+  color: var(--text-0);
+}
+.s-goal.met {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+.s-goal.met b {
+  color: var(--ok);
+}
+.s-events {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  color: var(--text-1);
+}
+.s-events li {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  line-height: 1.4;
+}
+.s-events .dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-3);
+  transform: translateY(-1px);
+}
+.s-events .lvl-success .dot {
+  background: var(--ok);
+}
+.s-events .lvl-warning .dot {
+  background: var(--warn);
+}
+.s-events .lvl-error .dot {
+  background: var(--err);
+}
+.s-expert {
+  align-self: center;
+  margin: 2px 0 8px;
+  border: 0;
+  background: none;
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.s-expert:hover {
+  color: var(--accent);
+}
+
+/* ------------------------------------------------------------------ guided tour */
+.tour {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-dialog);
+  pointer-events: none;
+}
+.tour-scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.tour-scrim path {
+  fill: rgba(4, 6, 9, 0.62);
+  pointer-events: visiblePainted;
+}
+.tour-ring {
+  position: absolute;
+  border-radius: 8px;
+  box-shadow:
+    0 0 0 2px var(--accent),
+    0 0 0 7px var(--accent-soft);
+  transition: all 220ms var(--ease);
+  pointer-events: none;
+}
+.tour-card {
+  position: absolute;
+  width: min(380px, calc(100vw - 28px));
+  padding: 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--bg-2);
+  color: var(--text-0);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+  transition:
+    left 220ms var(--ease),
+    top 220ms var(--ease);
+}
+.tour-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.tour-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.tour-count {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+.tour-card h2 {
+  margin: 0 0 6px;
+  font-size: var(--fs-xl);
+  line-height: 1.25;
+}
+.tour-card p {
+  margin: 0;
+  font-size: var(--fs-md);
+  line-height: 1.55;
+  color: var(--text-1);
+}
+.tour-dots {
+  display: flex;
+  gap: 5px;
+  margin: 14px 0;
+}
+.tour-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 6px;
+  background: var(--bg-4);
+  transition: all var(--t) var(--ease);
+}
+.tour-dots span.done {
+  background: var(--accent-line);
+}
+.tour-dots span.on {
+  width: 18px;
+  background: var(--accent);
+}
+.tour-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tour-foot .btn {
+  height: 34px;
+  padding-inline: 14px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tour-ring,
+  .tour-card {
+    transition: none;
+  }
+  .s-pulse {
+    animation: none;
+  }
 }

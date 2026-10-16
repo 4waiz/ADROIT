@@ -198,5 +198,7 @@ def license_texts() -> dict[str, Any]:
             {"name": "Lucide icons", "license": "ISC"},
             {"name": "Figtree (font)", "license": "SIL OFL 1.1"},
             {"name": "IBM Plex Mono / IBM Plex Sans Arabic (fonts)", "license": "SIL OFL 1.1"},
+            # The factory's HDRI, scanned textures and props: frontend/public/factory/ASSETS.md.
+            {"name": "Factory HDRI, textures and props (Poly Haven)", "license": "CC0 1.0"},
         ],
     }

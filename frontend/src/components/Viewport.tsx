@@ -10,6 +10,7 @@ import {
   Crosshair,
   Expand,
   Eye,
+  Factory,
   Gauge,
   Layers,
   Move3d,
@@ -72,6 +73,9 @@ export function Viewport() {
   const tele = useStore((s) => s.telemetry);
   const setPref = useStore((s) => s.setPref);
   const setOverlay = useStore((s) => s.setOverlay);
+  const environment = useStore((s) => s.environment);
+  const simple = useStore((s) => s.uiMode === "simple");
+  const [envLoading, setEnvLoading] = useState<number | null>(null);
   const [menu, setMenu] = useState<"camera" | "overlays" | "quality" | "follow" | "speed" | null>(null);
   const [follow, setFollow] = useState<FollowMode>("none");
   const [snapshotBusy, setSnapshotBusy] = useState(false);
@@ -107,11 +111,13 @@ export function Viewport() {
     }
   }, [manifest]);
   useEffect(() => engineRef?.setTheme(theme), [theme]);
+  useEffect(() => engineRef?.setEnvironment(environment, (fraction, done) => setEnvLoading(done ? null : fraction)), [environment]);
   useEffect(() => engineRef?.setQuality(quality), [quality]);
   useEffect(() => engineRef?.setOverlays(overlays), [overlays]);
   useEffect(() => engineRef?.setSelection(selected), [selected, manifest]);
   useEffect(() => engineRef?.setProjection(projection), [projection]);
-  useEffect(() => engineRef?.setGizmoMode(gizmoMode, gizmoSpace), [gizmoMode, gizmoSpace]);
+  // Simple mode moves the hand with arrows in the world's axes: no rotate ring, no local frame.
+  useEffect(() => engineRef?.setGizmoMode(simple ? "translate" : gizmoMode, simple ? "world" : gizmoSpace), [gizmoMode, gizmoSpace, simple]);
   useEffect(() => {
     if (focusRequest) engineRef?.focusSelected();
   }, [focusRequest]);
@@ -128,6 +134,26 @@ export function Viewport() {
   const playing = status?.playing ?? false;
   const ready = status?.phase === "ready" && connection === "open";
   const speed = status?.speed ?? 1;
+  const runnerName = status?.runner?.name ?? null;
+  const finite = tele?.finite ?? true;
+
+  // The factory's stack light and operator panel say what the simulation is doing.
+  useEffect(() => {
+    const title = t("factory.cell");
+    if (connection !== "open" || !status || status.phase === "starting" || status.phase === "idle") {
+      engineRef?.setMachineState("offline", { title, status: t("factory.offline"), tone: "idle", detail: t("factory.offlineDetail") });
+    } else if (status.phase === "error" || !finite) {
+      engineRef?.setMachineState("fault", { title, status: t("factory.fault"), tone: "err", detail: status.buildError || t("factory.faultDetail") });
+    } else if (status.phase === "building") {
+      engineRef?.setMachineState("paused", { title, status: t("factory.loading"), tone: "warn", detail: status.phaseDetail });
+    } else if (playing && runnerName) {
+      engineRef?.setMachineState("program", { title, status: t("factory.program"), tone: "busy", detail: runnerName });
+    } else if (playing) {
+      engineRef?.setMachineState("running", { title, status: t("factory.running"), tone: "ok", detail: manifest?.scenario.title ?? "" });
+    } else {
+      engineRef?.setMachineState("paused", { title, status: t("factory.paused"), tone: "warn", detail: manifest?.scenario.title ?? "" });
+    }
+  }, [connection, status?.phase, status?.buildError, status?.phaseDetail, playing, runnerName, finite, manifest?.scenario.title, t, status]);
 
   const screenshot = async () => {
     const blob = await engineRef?.screenshot();
@@ -173,7 +199,7 @@ export function Viewport() {
     { key: "com", label: t("overlay.com") },
     { key: "regions", label: t("overlay.regions") },
     { key: "workspace", label: t("overlay.workspace") },
-    { key: "grid", label: t("overlay.grid") },
+    { key: "grid", label: environment === "factory" ? t("overlay.gridStudio") : t("overlay.grid") },
   ];
   const qualities: { key: Quality; label: string; hint: string }[] = [
     { key: "performance", label: t("quality.performance"), hint: t("quality.performanceHint") },
@@ -189,7 +215,7 @@ export function Viewport() {
     <div className="viewport" ref={wrap}>
       <div ref={host} style={{ position: "absolute", inset: 0 }} />
 
-      <div className="hud hud-tools" role="toolbar" aria-label={t("viewport.tools")}>
+      <div className="hud hud-tools" role="toolbar" aria-label={t("viewport.tools")} data-tour="view-tools">
         <Popover
           open={menu === "camera"}
           onClose={close}
@@ -211,6 +237,7 @@ export function Viewport() {
             {projection === "perspective" ? t("camera.toOrtho") : t("camera.toPerspective")}
           </MenuItem>
         </Popover>
+        {!simple && (
         <Popover
           open={menu === "follow"}
           onClose={close}
@@ -227,13 +254,17 @@ export function Viewport() {
             </MenuItem>
           ))}
         </Popover>
-        <IconButton label={t("viewport.focus")} onClick={() => engineRef?.focusSelected()} disabled={!selected} shortcut="F">
-          <Crosshair size={16} />
-        </IconButton>
+        )}
+        {!simple && (
+          <IconButton label={t("viewport.focus")} onClick={() => engineRef?.focusSelected()} disabled={!selected} shortcut="F">
+            <Crosshair size={16} />
+          </IconButton>
+        )}
         <IconButton label={t("viewport.reset")} onClick={() => engineRef?.applyPreset("iso")} shortcut="Home">
           <RotateCcw size={16} />
         </IconButton>
         <span className="sep" />
+        {!simple && (
         <Popover
           open={menu === "overlays"}
           onClose={close}
@@ -252,6 +283,8 @@ export function Viewport() {
             </MenuItem>
           ))}
         </Popover>
+        )}
+        {!simple && (
         <Popover
           open={menu === "quality"}
           onClose={close}
@@ -272,12 +305,23 @@ export function Viewport() {
             </MenuItem>
           ))}
         </Popover>
+        )}
+        <IconButton
+          label={environment === "factory" ? t("env.toStudio") : t("env.toFactory")}
+          active={environment === "factory"}
+          onClick={() => setPref("environment", environment === "factory" ? "studio" : "factory")}
+          shortcut="B"
+        >
+          <Factory size={16} />
+        </IconButton>
         <IconButton label={t("viewport.screenshot")} onClick={screenshot} shortcut="P">
           <Camera size={16} />
         </IconButton>
-        <IconButton label={t("viewport.snapshot")} onClick={snapshot} disabled={!ready || snapshotBusy}>
-          <Aperture size={16} />
-        </IconButton>
+        {!simple && (
+          <IconButton label={t("viewport.snapshot")} onClick={snapshot} disabled={!ready || snapshotBusy}>
+            <Aperture size={16} />
+          </IconButton>
+        )}
         <IconButton
           label={t("viewport.fullscreen")}
           onClick={() => {
@@ -289,7 +333,7 @@ export function Viewport() {
         </IconButton>
       </div>
 
-      {armSelected && (
+      {armSelected && !simple && (
         <div className="hud hud-gizmo" role="toolbar" aria-label={t("viewport.gizmo")}>
           <IconButton label={t("gizmo.translate")} active={gizmoMode === "translate"} onClick={() => setPref("gizmoMode", "translate")} shortcut="W">
             <Move3d size={16} />
@@ -309,8 +353,17 @@ export function Viewport() {
       )}
 
       {(success || runner) && (
-        <div className="hud hud-goal" role="status" aria-live="polite">
-          {runner ? (
+        <div className="hud hud-goal" role="status" aria-live="polite" data-tour="goal">
+          {simple && !runner && manifest?.scenario.successLabel ? (
+            <>
+              {success?.done || goalMet ? (
+                <span className="badge ok"><CheckCircle2 size={11} /> {t("simple.goalReached")}</span>
+              ) : (
+                <span className="badge"><Target size={11} /> {t("goal.goal")}</span>
+              )}
+              <span className="detail" dir="auto">{manifest.scenario.successLabel}</span>
+            </>
+          ) : runner ? (
             <>
               <span className="badge accent">{runner.kind === "task" ? t("goal.task") : t("goal.routine")}</span>
               <span className="detail">
@@ -334,7 +387,7 @@ export function Viewport() {
         </div>
       )}
 
-      <div className="hud transport" role="toolbar" aria-label={t("transport.label")}>
+      <div className="hud transport" role="toolbar" aria-label={t("transport.label")} data-tour="transport">
         <IconButton
           label={playing ? t("transport.pause") : t("transport.play")}
           onClick={() => void bridge.command(playing ? "sim.pause" : "sim.play")}
@@ -343,9 +396,11 @@ export function Viewport() {
         >
           {playing ? <Pause size={18} /> : <Play size={18} />}
         </IconButton>
-        <IconButton label={t("transport.step")} onClick={() => void bridge.command("sim.step", { count: 1 })} disabled={!ready} shortcut=".">
-          <SkipForward size={16} />
-        </IconButton>
+        {!simple && (
+          <IconButton label={t("transport.step")} onClick={() => void bridge.command("sim.step", { count: 1 })} disabled={!ready} shortcut=".">
+            <SkipForward size={16} />
+          </IconButton>
+        )}
         <IconButton label={t("transport.reset")} onClick={() => void bridge.command("sim.reset")} disabled={!ready} shortcut="Shift+R">
           <RotateCcw size={16} />
         </IconButton>
@@ -369,13 +424,18 @@ export function Viewport() {
         </Popover>
         <span className="sep" />
         <div className="time" aria-label={t("transport.time")}>
-          <b>{fmt(tele?.t ?? status?.simTime ?? 0, 3)} s</b>
-          <span>
-            {t("transport.stepN", { n: tele?.step ?? status?.step ?? 0 })} · {fmt(tele?.rate.realtime ?? status?.realtimeFactor ?? 0, 2)}× RT
-          </span>
+          <b>{fmt(tele?.t ?? status?.simTime ?? 0, simple ? 1 : 3)} s</b>
+          {simple ? (
+            <span>{t("simple.simTime")}</span>
+          ) : (
+            <span>
+              {t("transport.stepN", { n: tele?.step ?? status?.step ?? 0 })} · {fmt(tele?.rate.realtime ?? status?.realtimeFactor ?? 0, 2)}× RT
+            </span>
+          )}
         </div>
       </div>
 
+      {!simple && (
       <div className="hud hud-perf" aria-label={t("perf.label")}>
         <div>
           {t("perf.render")} <b>{stats.fps.toFixed(0)}</b> fps · {stats.ms.toFixed(1)} ms · {t(`quality.${stats.quality}` as "quality.balanced")}
@@ -385,6 +445,13 @@ export function Viewport() {
         </div>
         {tele && !tele.finite && <div style={{ color: "var(--err)" }}>{t("perf.nonFinite")}</div>}
       </div>
+      )}
+
+      {envLoading !== null && (
+        <div className="hud hud-env" role="status" aria-live="polite">
+          <Factory size={13} /> {t("env.loading", { pct: Math.round(envLoading * 100) })}
+        </div>
+      )}
 
       {(status?.phase === "building" || sceneLoading || !manifest || connection !== "open") && (
         <div className="viewport-overlay">

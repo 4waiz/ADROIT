@@ -12,14 +12,25 @@ import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { OutlinePass } from "three/addons/postprocessing/OutlinePass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { VignetteShader } from "three/addons/shaders/VignetteShader.js";
 import type { Frame, Manifest, Vec3, WorkcellDoc } from "../api/types";
-import type { Overlays, Quality, Theme } from "../state/store";
+import type { EnvironmentName, Overlays, Quality, Theme } from "../state/store";
 import { type BuiltScene, buildScene } from "./builder";
 import { DraftLayer } from "./drafts";
+import { FactoryEnvironment, HALL, type MachineState, type ScreenState } from "./factory";
 import { OverlayLayer } from "./overlays";
 
 THREE.Object3D.DEFAULT_UP.set(0, 0, 1);
+
+/** Ambient occlusion at half the drawing size, upsampled in its own blend: a quarter of the cost. */
+class HalfGTAOPass extends GTAOPass {
+  override setSize(width: number, height: number): void {
+    super.setSize(Math.max(1, Math.floor(width / 2)), Math.max(1, Math.floor(height / 2)));
+  }
+}
 
 export type PresetName = "iso" | "operator" | "front" | "side" | "top" | "tool";
 export type FollowMode = "none" | "robot" | "tool";
@@ -90,6 +101,7 @@ export class ViewportEngine {
   private key: THREE.DirectionalLight;
   private fill: THREE.DirectionalLight;
   private rim: THREE.DirectionalLight;
+  private cellLight: THREE.SpotLight;
   private hemi: THREE.HemisphereLight;
   private envTexture: THREE.Texture | null = null;
   private built: BuiltScene | null = null;
@@ -115,6 +127,11 @@ export class ViewportEngine {
   private needsFraming = false;
   private theme: Theme = "dark";
   private drafts: DraftLayer;
+  private factory: FactoryEnvironment;
+  private environmentName: EnvironmentName = "studio";
+  private bloom: UnrealBloomPass | null = null;
+  private needsFactoryFit = false;
+  private onEnvironmentProgress: ((fraction: number, ready: boolean) => void) | null = null;
 
   constructor(
     private container: HTMLElement,
@@ -130,7 +147,7 @@ export class ViewportEngine {
     this.renderer.domElement.setAttribute("aria-label", "3D workcell viewport");
     container.appendChild(this.renderer.domElement);
 
-    this.perspective = new THREE.PerspectiveCamera(42, 1, 0.01, 60);
+    this.perspective = new THREE.PerspectiveCamera(42, 1, 0.02, 90);
     this.perspective.up.set(0, 0, 1);
     this.ortho = new THREE.OrthographicCamera(-1, 1, 1, -1, -20, 60);
     this.ortho.up.set(0, 0, 1);
@@ -158,6 +175,10 @@ export class ViewportEngine {
     this.rim = new THREE.DirectionalLight(0xffffff, 0.9);
     this.rim.position.set(-1.6, -2.8, 2.2);
     this.scene.add(this.hemi, this.key, this.key.target, this.fill, this.rim);
+    // The factory's cell light: a pool of light over the bench from the fixture above it.
+    this.cellLight = new THREE.SpotLight(0xfff2e2, 0, 0, 0.75, 1.0, 2);
+    this.cellLight.visible = false;
+    this.scene.add(this.cellLight, this.cellLight.target);
 
     this.floor = new THREE.Mesh(
       new THREE.CircleGeometry(14, 96),
@@ -168,7 +189,8 @@ export class ViewportEngine {
     this.grid = this.makeGrid();
     this.dome = this.makeDome();
     this.pool = this.makePool();
-    this.stage.add(this.floor, this.grid, this.pool);
+    this.stage.add(this.floor, this.pool);
+    this.scene.add(this.grid);
     this.scene.add(this.dome);
     this.scene.add(this.stage);
 
@@ -194,6 +216,9 @@ export class ViewportEngine {
     this.drafts = new DraftLayer(this.scene, this.camera, this.renderer.domElement, this.controls, (id, at, rpy) =>
       this.events.onDraftMove(id, at, rpy),
     );
+
+    this.factory = new FactoryEnvironment(this.renderer);
+    this.scene.add(this.factory.group);
 
     this.applyEnvironment();
     this.setTheme("dark");
@@ -288,7 +313,80 @@ export class ViewportEngine {
 
   setTheme(theme: Theme): void {
     this.theme = theme;
+    this.applyLook();
+  }
+
+  /** Studio (a neutral stage, coloured by the interface theme) or factory (a lit industrial hall). */
+  setEnvironment(name: EnvironmentName, onProgress?: (fraction: number, ready: boolean) => void): void {
+    this.environmentName = name;
+    if (onProgress) this.onEnvironmentProgress = onProgress;
+    if (name === "factory" && !this.factory.ready) {
+      void this.factory
+        .load((f) => this.onEnvironmentProgress?.(f, false))
+        .then(() => {
+          this.onEnvironmentProgress?.(1, true);
+          if (this.environmentName === "factory") {
+            this.needsFactoryFit = true;
+            this.applyLook();
+            this.buildComposer();
+          }
+        });
+    } else {
+      this.onEnvironmentProgress?.(1, true);
+    }
+    this.applyLook();
+    this.buildComposer();
+    this.resize();
+  }
+
+  get environment(): EnvironmentName {
+    return this.environmentName;
+  }
+
+  /** What the cell's stack light and operator panel show. */
+  setMachineState(state: MachineState, screen: ScreenState): void {
+    this.factory.setState(state, screen);
+  }
+
+  private applyLook(): void {
+    const theme = this.theme;
+    const factory = this.environmentName === "factory";
+    this.stage.visible = !factory;
+    this.dome.visible = !factory;
+    this.factory.group.visible = factory;
+    this.grid.visible = !factory && (this.overlayState?.grid ?? true);
+    this.controls.maxPolarAngle = factory ? Math.PI * 0.495 : Math.PI;
+    if (factory) {
+      this.built?.setBenchTheme("factory");
+      // Daylight from the roof and the hall's own light: the HDRI does the soft fill and the
+      // reflections, one high key light gives crisp shadows on and around the cell.
+      this.scene.background = new THREE.Color(0x7f8891);
+      this.scene.fog = new THREE.FogExp2(0x8c949d, 0.028);
+      this.scene.environment = this.factory.environment ?? this.envTexture;
+      this.scene.environmentIntensity = this.factory.environment ? 0.62 : 0.5;
+      this.cellLight.visible = true;
+      this.cellLight.intensity = 55;
+      this.scene.environmentRotation.set(Math.PI / 2, 0, 0);
+      this.hemi.color.set(0xe8eef5);
+      this.hemi.groundColor.set(0x6d6862);
+      this.hemi.intensity = 0.28;
+      this.key.color.set(0xfff3e4);
+      this.key.intensity = 2.2;
+      this.fill.intensity = 0.15;
+      this.rim.intensity = 0.0;
+      this.renderer.toneMappingExposure = 0.88;
+      this.fitKeyLight();
+      if (this.outline) this.styleOutline();
+      return;
+    }
     this.built?.setBenchTheme(theme);
+    this.cellLight.visible = false;
+    this.scene.environment = this.envTexture;
+    this.scene.environmentRotation.set(Math.PI / 2, 0, 0);
+    this.key.color.set(0xfff2e5);
+    this.fill.intensity = 0.7;
+    this.rim.intensity = 0.9;
+    this.fitKeyLight();
     const t = THEMES[theme];
     this.scene.background = new THREE.Color(t.background);
     this.scene.fog = new THREE.Fog(t.fog, 6, 18);
@@ -310,9 +408,62 @@ export class ViewportEngine {
     if (this.outline) this.styleOutline();
   }
 
+  /**
+   * The key light's position and shadow frustum, sized to the working volume. In the studio it is
+   * a classic three-quarter key; in the factory it comes from high up, as skylight does, and its
+   * shadow also covers the guarding, cabinet and panel around the cell.
+   */
+  private fitKeyLight(): void {
+    const m = this.manifest;
+    if (!m) return;
+    const origin = m.cell.origin ?? [0.6, 0, m.cell.surfaceZ];
+    const factory = this.environmentName === "factory";
+    const half = m.cell.half ? Math.max(m.cell.half[0], m.cell.half[1]) : 0.7;
+    const reach = factory ? Math.max(3.4, half + 2.6) : Math.max(1.1, half + 0.5);
+    const cam = this.key.shadow.camera as THREE.OrthographicCamera;
+    cam.left = -reach;
+    cam.right = reach;
+    cam.top = reach;
+    cam.bottom = -reach;
+    cam.near = 0.1;
+    cam.far = factory ? 24 : 9;
+    cam.updateProjectionMatrix();
+    this.key.target.position.set(origin[0], origin[1], origin[2]);
+    this.cellLight.position.set(origin[0] + 0.4, origin[1] - 0.6, origin[2] + 6.6);
+    this.cellLight.target.position.set(origin[0], origin[1], origin[2]);
+    if (factory) {
+      this.key.position.set(origin[0] - 3.2, origin[1] - 4.6, origin[2] + 10.5);
+      this.key.shadow.radius = 6;
+      this.key.shadow.bias = -0.0002;
+      this.key.shadow.normalBias = 0.02;
+    } else {
+      this.key.position.set(origin[0] + 1.9, origin[1] - 1.3, origin[2] + 3.0);
+      this.key.shadow.radius = 4;
+      this.key.shadow.bias = -0.00025;
+      this.key.shadow.normalBias = 0.012;
+    }
+  }
+
+  /** Lays the factory's guarding, markings, cabinet and panel around the cell as it stands now. */
+  private fitFactory(): void {
+    const built = this.built;
+    if (!built) return;
+    built.root.updateMatrixWorld(true);
+    const box = new THREE.Box3();
+    for (const objects of built.byOwner.values()) for (const o of objects) box.expandByObject(o);
+    if (box.isEmpty()) box.setFromCenterAndSize(this.focusPoint(), new THREE.Vector3(1.2, 1.2, 1));
+    const cx = (box.min.x + box.max.x) / 2;
+    const cy = (box.min.y + box.max.y) / 2;
+    const hx = Math.min(4, Math.max(0.6, (box.max.x - box.min.x) / 2 + 0.15));
+    const hy = Math.min(4, Math.max(0.6, (box.max.y - box.min.y) / 2 + 0.15));
+    this.factory.group.position.set(cx, cy, this.manifest?.cell.groundZ ?? 0);
+    this.factory.fit({ x0: -hx, x1: hx, y0: -hy, y1: hy });
+  }
+
   setQuality(quality: Quality): void {
     this.quality = quality;
     const q = QUALITY[quality];
+    this.factory.setQuality({ atmosphere: quality !== "performance" });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, q.pixelRatio));
     this.renderer.shadowMap.enabled = q.shadows;
     this.key.castShadow = q.shadows;
@@ -334,17 +485,24 @@ export class ViewportEngine {
     this.composer = null;
     this.outline = null;
     this.gtao = null;
+    this.bloom = null;
     const q = QUALITY[this.quality];
+    const factory = this.environmentName === "factory";
     if (!q.post) return;
     const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
     const target = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: 4 });
     const composer = new EffectComposer(this.renderer, target);
     this.renderPass = new RenderPass(this.scene, this.camera);
     composer.addPass(this.renderPass);
-    if (q.ao) {
-      this.gtao = new GTAOPass(this.scene, this.camera, size.x, size.y);
-      this.gtao.blendIntensity = 0.85;
+    if (q.ao || factory) {
+      // Ultra keeps full-resolution occlusion; the factory at Balanced runs it at half resolution.
+      this.gtao = q.ao ? new GTAOPass(this.scene, this.camera, size.x, size.y) : new HalfGTAOPass(this.scene, this.camera, size.x, size.y);
+      this.gtao.blendIntensity = factory ? 1.0 : 0.85;
       composer.addPass(this.gtao);
+    }
+    if (factory) {
+      this.bloom = new UnrealBloomPass(new THREE.Vector2(size.x, size.y), 0.42, 0.6, 3.2);
+      composer.addPass(this.bloom);
     }
     if (q.outline) {
       this.outline = new OutlinePass(new THREE.Vector2(size.x, size.y), this.scene, this.camera);
@@ -355,6 +513,12 @@ export class ViewportEngine {
       composer.addPass(this.outline);
     }
     composer.addPass(new OutputPass());
+    if (factory) {
+      const vignette = new ShaderPass(VignetteShader);
+      vignette.uniforms.offset.value = 1.05;
+      vignette.uniforms.darkness.value = 1.05;
+      composer.addPass(vignette);
+    }
     if (this.quality === "ultra") composer.addPass(new SMAAPass());
     this.composer = composer;
     this.applySelection();
@@ -386,21 +550,13 @@ export class ViewportEngine {
     if (this.overlayState) this.setOverlays(this.overlayState);
     const surfaceZ = manifest.cell.surfaceZ;
     this.stage.position.z = manifest.cell.groundZ ?? 0;
+    this.grid.position.z = manifest.cell.groundZ ?? 0;
     const origin = manifest.cell.origin ?? [0.6, 0, surfaceZ];
-    this.key.target.position.set(origin[0], origin[1], origin[2]);
     this.pool.position.set(origin[0] - 0.2, origin[1], 0.0015);
-    const reach = Math.max(1.1, ...(manifest.cell.half ? [manifest.cell.half[0] + 0.5, manifest.cell.half[1] + 0.5] : [1.2]));
-    const cam = this.key.shadow.camera as THREE.OrthographicCamera;
-    cam.left = -reach;
-    cam.right = reach;
-    cam.top = reach;
-    cam.bottom = -reach;
-    cam.near = 0.1;
-    cam.far = 9;
-    cam.updateProjectionMatrix();
-    this.key.position.set(origin[0] + 1.9, origin[1] - 1.3, origin[2] + 3.0);
+    this.fitKeyLight();
     this.appliedSeq = -1;
-    this.built.setBenchTheme(this.theme);
+    this.needsFactoryFit = true;
+    this.built.setBenchTheme(this.environmentName === "factory" ? "factory" : this.theme);
     this.applySelection();
     this.needsFraming = true;
   }
@@ -442,6 +598,10 @@ export class ViewportEngine {
     if (this.needsFraming) {
       this.needsFraming = false;
       this.applyPreset("iso", false);
+    }
+    if (this.needsFactoryFit && this.factory.ready) {
+      this.needsFactoryFit = false;
+      this.fitFactory();
     }
     this.overlays?.update(frame, this.dragging || this.gizmo.getHelper().visible ? this.gizmoArm : null);
     if (this.gizmoArm && !this.dragging) {
@@ -530,7 +690,8 @@ export class ViewportEngine {
   setOverlays(overlays: Overlays): void {
     this.overlayState = overlays;
     this.overlays?.setVisibility(overlays);
-    this.grid.visible = overlays.grid;
+    // The factory floor carries its own markings; the measuring grid belongs to the studio.
+    this.grid.visible = overlays.grid && this.environmentName !== "factory";
     this.appliedSeq = -1;
   }
 
@@ -619,7 +780,8 @@ export class ViewportEngine {
       }
       case "iso":
       default:
-        return [from(new THREE.Vector3(1.0, -0.95, 0.72), 0.84), c];
+        // In the factory, a little wider: the cell's surroundings are part of the picture.
+        return [from(new THREE.Vector3(1.0, -0.95, 0.66), this.environmentName === "factory" ? 1.12 : 0.84), c];
     }
   }
 
@@ -676,6 +838,24 @@ export class ViewportEngine {
     return new Promise((resolve) => this.renderer.domElement.toBlob((b) => resolve(b), "image/png"));
   }
 
+  /** Moves the camera to look from `eye` at `target`, over `ms` (0 jumps). */
+  setView(eye: number[], target: number[], ms = 0): void {
+    const position = new THREE.Vector3(eye[0], eye[1], eye[2]);
+    const look = new THREE.Vector3(target[0], target[1], target[2]);
+    if (ms <= 0 || this.reducedMotion) {
+      this.moveTo(position, look, false);
+      return;
+    }
+    this.tween = { from: [this.camera.position.clone(), this.controls.target.clone()], to: [position, look], t0: performance.now(), ms };
+  }
+
+  /** Where the factory stands (its floor origin under the cell's centre), or null in the studio. */
+  factoryOrigin(): number[] | null {
+    if (this.environmentName !== "factory") return null;
+    const p = this.factory.group.position;
+    return [p.x, p.y, p.z];
+  }
+
   cameraState(): { eye: number[]; lookAt: number[]; fovY: number } {
     const p = this.camera.position;
     const t = this.controls.target;
@@ -699,6 +879,7 @@ export class ViewportEngine {
     const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
     this.composer?.setSize(w, h);
     this.outline?.setSize(size.x, size.y);
+    this.bloom?.setSize(size.x, size.y);
     this.overlays?.setResolution(w, h);
   }
 
@@ -721,6 +902,10 @@ export class ViewportEngine {
     this.applyFrame();
     this.applyFollow();
     this.controls.update();
+    if (this.environmentName === "factory") {
+      this.factory.update(dt / 1000);
+      this.keepInsideHall();
+    }
     if (this.camera === this.ortho) {
       // Keep the orthographic frame matched to the orbit distance, so zooming still zooms.
       const distance = this.camera.position.distanceTo(this.controls.target);
@@ -751,6 +936,17 @@ export class ViewportEngine {
       });
     }
   };
+
+  /** In the factory the orbit stops at the walls, the roof and the floor instead of passing through. */
+  private keepInsideHall(): void {
+    const o = this.factory.group.position;
+    const p = this.camera.position;
+    const m = 0.6;
+    const x = THREE.MathUtils.clamp(p.x, o.x + HALL.x0 + m, o.x + HALL.x1 - m);
+    const y = THREE.MathUtils.clamp(p.y, o.y + HALL.y0 + m, o.y + HALL.y1 - m);
+    const z = THREE.MathUtils.clamp(p.z, o.z + 0.15, o.z + HALL.eave - 0.4);
+    if (x !== p.x || y !== p.y || z !== p.z) p.set(x, y, z);
+  }
 
   private applyFollow(): void {
     if (this.follow === "none" || !this.frame) return;
@@ -784,6 +980,7 @@ export class ViewportEngine {
     this.controls.dispose();
     this.composer?.dispose();
     this.envTexture?.dispose();
+    this.factory.dispose();
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }

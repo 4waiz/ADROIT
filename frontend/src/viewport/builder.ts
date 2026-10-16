@@ -15,9 +15,12 @@ export interface BuiltScene {
   byOwner: Map<string, THREE.Object3D[]>;
   bodyToArm: Map<number, string>;
   bounds: THREE.Box3;
-  setBenchTheme(theme: "dark" | "light"): void;
+  setBenchTheme(theme: BenchLook): void;
   dispose(): void;
 }
+
+/** How the cell's bench is finished: the studio's grid top in either theme, or the factory's steel fixture table. */
+export type BenchLook = "dark" | "light" | "factory";
 
 export interface DeformableView {
   info: DeformableInfo;
@@ -138,6 +141,51 @@ function benchTexture(theme: "dark" | "light"): THREE.CanvasTexture {
   return tex;
 }
 
+/** A machined steel fixture table: ground finish, a 100 mm grid of bored holes (one 250 mm tile). */
+function fixtureTexture(): THREE.CanvasTexture {
+  const size = 1024;
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = size;
+  const g = canvas.getContext("2d")!;
+  g.fillStyle = "#8f959b";
+  g.fillRect(0, 0, size, size);
+  // Grinding marks: fine arcs and streaks.
+  for (let i = 0; i < 5200; i++) {
+    const y = Math.random() * size;
+    const x = Math.random() * size;
+    g.strokeStyle = Math.random() < 0.5 ? `rgba(255,255,255,${0.02 + Math.random() * 0.05})` : `rgba(0,0,0,${0.02 + Math.random() * 0.05})`;
+    g.lineWidth = 1;
+    g.beginPath();
+    g.moveTo(x, y);
+    g.lineTo(x + 30 + Math.random() * 120, y + (Math.random() - 0.5) * 3);
+    g.stroke();
+  }
+  // Bored holes on a 100 mm pitch: 2.5 per tile, so place them at 0, 400, 800 px of a 1000 px tile.
+  const pitch = size / 2.5;
+  for (let gx = pitch / 2; gx < size; gx += pitch) {
+    for (let gy = pitch / 2; gy < size; gy += pitch) {
+      const r = size * 0.017;
+      const ring = g.createRadialGradient(gx, gy, r * 0.6, gx, gy, r * 1.35);
+      ring.addColorStop(0, "rgba(0,0,0,0)");
+      ring.addColorStop(0.7, "rgba(255,255,255,0.18)");
+      ring.addColorStop(1, "rgba(0,0,0,0)");
+      g.fillStyle = ring;
+      g.beginPath();
+      g.arc(gx, gy, r * 1.35, 0, Math.PI * 2);
+      g.fill();
+      g.fillStyle = "#26292d";
+      g.beginPath();
+      g.arc(gx, gy, r, 0, Math.PI * 2);
+      g.fill();
+    }
+  }
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.anisotropy = 8;
+  return tex;
+}
+
 class BenchStyle {
   readonly top = new THREE.MeshStandardMaterial({ roughness: 0.62, metalness: 0.15 });
   readonly side = new THREE.MeshStandardMaterial({ roughness: 0.5, metalness: 0.35 });
@@ -148,17 +196,30 @@ class BenchStyle {
     this.repeat.set(x, y);
   }
 
-  apply(theme: "dark" | "light"): void {
-    let tex = this.textures.get(theme);
+  apply(look: BenchLook): void {
+    let tex = this.textures.get(look);
     if (!tex) {
-      tex = benchTexture(theme);
-      this.textures.set(theme, tex);
+      tex = look === "factory" ? fixtureTexture() : benchTexture(look);
+      this.textures.set(look, tex);
     }
     tex.repeat.copy(this.repeat);
     this.top.map = tex;
     this.top.color.set(0xffffff);
-    this.side.color.set(theme === "dark" ? 0x1a1f24 : 0x7d8791);
+    if (look === "factory") {
+      this.top.roughness = 0.42;
+      this.top.metalness = 0.7;
+      this.side.color.set(0x2c3238);
+      this.side.roughness = 0.55;
+      this.side.metalness = 0.3;
+    } else {
+      this.top.roughness = 0.62;
+      this.top.metalness = 0.15;
+      this.side.color.set(look === "dark" ? 0x1a1f24 : 0x7d8791);
+      this.side.roughness = 0.5;
+      this.side.metalness = 0.35;
+    }
     this.top.needsUpdate = true;
+    this.side.needsUpdate = true;
   }
 
   dispose(): void {
@@ -329,8 +390,8 @@ export function buildScene(manifest: Manifest, blob: ArrayBuffer, opts: { premiu
     byOwner,
     bodyToArm,
     bounds,
-    setBenchTheme(theme) {
-      if (benchUsed) bench.apply(theme);
+    setBenchTheme(look) {
+      if (benchUsed) bench.apply(look);
     },
     dispose() {
       materials.dispose();

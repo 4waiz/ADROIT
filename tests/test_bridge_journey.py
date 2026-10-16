@@ -147,6 +147,11 @@ class TestBridgeJourney(unittest.TestCase):
         with sync_playwright() as p:
             browser = _launch(p)
             context = browser.new_context(viewport={"width": 1920, "height": 1080})
+            # This journey walks the engineering panels: Expert mode, the first-visit tour already
+            # seen (tests/test_bridge_simple.py walks Simple mode and the tour).
+            context.add_init_script(
+                "localStorage.setItem('bridge.prefs', JSON.stringify({uiMode: 'expert', tutorialSeen: true}));"
+            )
             page = context.new_page()
             errors: list[str] = []
             page.on("pageerror", lambda e: errors.append(str(e)))

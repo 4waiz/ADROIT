@@ -70,6 +70,11 @@ class CompareBody(BaseModel):
     keys: list[str] = Field(default_factory=list, max_length=12, description="name=colour keys, e.g. cube=orange")
 
 
+# The client's factory environment ships models, an HDR image and WebP textures; not every
+# platform's mimetypes table knows them.
+for _type, _ext in (("model/gltf-binary", ".glb"), ("image/vnd.radiance", ".hdr"), ("image/webp", ".webp")):
+    mimetypes.add_type(_type, _ext)
+
 SLUG = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 
 
@@ -546,7 +551,11 @@ def create_app(config: BridgeConfig | None = None, host: SimHost | None = None) 
         if static_dir.is_dir():
             candidate = (static_dir / path).resolve()
             if path and candidate.is_file() and static_dir.resolve() in candidate.parents:
-                cache = _cache(31536000) if "/assets/" in f"/{path}" else _cache(0)
+                cache = (
+                    _cache(31536000)
+                    if "/assets/" in f"/{path}"
+                    else _cache(86400 if path.startswith("factory/") else 0)
+                )
                 return FileResponse(candidate, headers=cache)
             index = static_dir / "index.html"
             if index.is_file():

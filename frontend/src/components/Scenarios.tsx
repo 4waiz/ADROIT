@@ -43,6 +43,7 @@ export async function launchScenario(id: string, title: string, t: ReturnType<ty
 function ScenarioCard({ s, current, compact }: { s: ScenarioInfo; current: boolean; compact?: boolean }) {
   const t = useT();
   const building = useStore((st) => st.status?.phase === "building");
+  const simple = useStore((st) => st.uiMode === "simple");
   const title = t(`scenario.${s.id}.title` as "scenario.pick_place.title") || s.title;
   return (
     <article className={`card${current ? " current" : ""}`}>
@@ -56,10 +57,14 @@ function ScenarioCard({ s, current, compact }: { s: ScenarioInfo; current: boole
         <h3>{title.startsWith("scenario.") ? s.title : title}</h3>
         <p>{s.summary}</p>
         <dl className="kv" style={{ fontSize: 11 }}>
-          <dt>{t("scenarios.robot")}</dt>
-          <dd className="mono">{s.robot}</dd>
-          <dt>{t("scenarios.physics")}</dt>
-          <dd>{s.physics}</dd>
+          {!simple && (
+            <>
+              <dt>{t("scenarios.robot")}</dt>
+              <dd className="mono">{s.robot}</dd>
+              <dt>{t("scenarios.physics")}</dt>
+              <dd>{s.physics}</dd>
+            </>
+          )}
           {s.successLabel && (
             <>
               <dt>{t("scenarios.success")}</dt>

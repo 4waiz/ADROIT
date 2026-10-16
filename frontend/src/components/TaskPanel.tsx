@@ -11,22 +11,22 @@ import { useT } from "../i18n";
 import { useStore } from "../state/store";
 
 type Op = "home" | "move" | "grip" | "wait";
-type TargetKind = "object" | "region" | "relative";
+type TargetKind = "object" | "region" | "relative" | "pose";
 
-interface StepDraft {
+export interface StepDraft {
   id: string;
   op: Op;
   arm?: string;
   value?: number;
   seconds?: number;
-  target?: { kind: TargetKind; name?: string; offset?: [number, number, number]; height?: number };
+  target?: { kind: TargetKind; name?: string; offset?: [number, number, number]; height?: number; position?: number[]; quat?: number[] };
   orientation?: "keep" | "down" | "grasp";
   speed?: number;
   tolerance?: number;
 }
 
 let seq = 0;
-const nid = () => `s${Date.now().toString(36)}${(seq++).toString(36)}`;
+export const nid = () => `s${Date.now().toString(36)}${(seq++).toString(36)}`;
 
 function objectHalfHeight(manifest: Manifest, name: string): number {
   const shape = manifest.shapes.find((s) => s.owner === `object:${name}` && s.type === "box");
@@ -52,7 +52,7 @@ export function pickAndPlace(manifest: Manifest, arm: string, object: string, re
   ];
 }
 
-function toWire(step: StepDraft): Record<string, unknown> {
+export function toWire(step: StepDraft): Record<string, unknown> {
   const out: Record<string, unknown> = { op: step.op };
   if (step.op !== "wait") out.arm = step.arm;
   if (step.op === "grip") Object.assign(out, { value: step.value ?? 1, seconds: step.seconds ?? 0.6 });

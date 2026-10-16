@@ -6,6 +6,7 @@
 import {
   ChevronRight,
   FolderOpen,
+  GraduationCap,
   HelpCircle,
   Info,
   Languages,
@@ -39,6 +40,8 @@ export function TopBar() {
   const lang = useStore((s) => s.lang);
   const setPref = useStore((s) => s.setPref);
   const openDialog = useStore((s) => s.openDialog);
+  const uiMode = useStore((s) => s.uiMode);
+  const simple = uiMode === "simple";
   const [fullscreen, setFullscreen] = useState(Boolean(document.fullscreenElement));
 
   useEffect(() => {
@@ -89,32 +92,51 @@ export function TopBar() {
         <span className={`chip ${simChip.cls}`} title={t("chip.simHint")}>
           <span className="dot" />
           {simChip.text}
-          {phase === "ready" && status && <small>{status.simTime.toFixed(2)} s</small>}
+          {phase === "ready" && status && !simple && <small>{status.simTime.toFixed(2)} s</small>}
         </span>
-        <span className="chip" title={manifest ? manifest.physics.summary : t("chip.backendHint")}>
-          <span className={`dot${manifest ? "" : ""}`} style={{ background: manifest ? "var(--accent)" : undefined }} />
-          {backend}
-          {manifest && <small>{manifest.physics.device}</small>}
-        </span>
-        <span className={`chip ${linkChip.cls}`} title={t("chip.linkHint")}>
-          <span className="dot" />
-          {linkChip.text}
-          {connection === "open" && latency !== null && <small>{latency} ms</small>}
-        </span>
+        {!simple && (
+          <span className="chip" title={manifest ? manifest.physics.summary : t("chip.backendHint")}>
+            <span className={`dot${manifest ? "" : ""}`} style={{ background: manifest ? "var(--accent)" : undefined }} />
+            {backend}
+            {manifest && <small>{manifest.physics.device}</small>}
+          </span>
+        )}
+        {(!simple || connection !== "open") && (
+          <span className={`chip ${linkChip.cls}`} title={t("chip.linkHint")}>
+            <span className="dot" />
+            {linkChip.text}
+            {connection === "open" && latency !== null && <small>{latency} ms</small>}
+          </span>
+        )}
         <span className="chip accent" title={t("chip.targetHint")}>
           {t("chip.target")}
         </span>
+      </div>
+      <div className="mode-switch" role="group" aria-label={t("mode.label")} data-tour="mode">
+        <button type="button" aria-pressed={simple} onClick={() => setPref("uiMode", "simple")} title={t("mode.simpleHint")}>
+          {t("mode.simple")}
+        </button>
+        <button type="button" aria-pressed={!simple} onClick={() => setPref("uiMode", "expert")} title={t("mode.expertHint")}>
+          {t("mode.expert")}
+        </button>
       </div>
       <div className="toolbar">
         <IconButton label={t("action.scenarios")} onClick={() => openDialog("gallery")} shortcut="G">
           <LayoutGrid size={17} />
         </IconButton>
-        <IconButton label={t("action.save")} onClick={() => openDialog("save")} shortcut="Ctrl+S">
-          <Save size={17} />
+        <IconButton label={t("action.tutorial")} onClick={() => useStore.setState({ tutorialOpen: true })}>
+          <GraduationCap size={17} />
         </IconButton>
-        <IconButton label={t("action.load")} onClick={() => openDialog("load")} shortcut="Ctrl+O">
-          <FolderOpen size={17} />
-        </IconButton>
+        {!simple && (
+          <>
+            <IconButton label={t("action.save")} onClick={() => openDialog("save")} shortcut="Ctrl+S">
+              <Save size={17} />
+            </IconButton>
+            <IconButton label={t("action.load")} onClick={() => openDialog("load")} shortcut="Ctrl+O">
+              <FolderOpen size={17} />
+            </IconButton>
+          </>
+        )}
         <IconButton
           label={theme === "dark" ? t("action.lightMode") : t("action.darkMode")}
           onClick={() => {
@@ -135,9 +157,11 @@ export function TopBar() {
         >
           <Languages size={17} />
         </IconButton>
-        <IconButton label={t("action.settings")} onClick={() => openDialog("settings")}>
-          <Settings size={17} />
-        </IconButton>
+        {!simple && (
+          <IconButton label={t("action.settings")} onClick={() => openDialog("settings")}>
+            <Settings size={17} />
+          </IconButton>
+        )}
         <IconButton
           label={fullscreen ? t("action.exitFullscreen") : t("action.fullscreen")}
           onClick={() => {
@@ -147,9 +171,11 @@ export function TopBar() {
         >
           {fullscreen ? <Minimize size={17} /> : <Maximize size={17} />}
         </IconButton>
-        <IconButton label={t("action.help")} onClick={() => openDialog("help")} shortcut="?">
-          <HelpCircle size={17} />
-        </IconButton>
+        {!simple && (
+          <IconButton label={t("action.help")} onClick={() => openDialog("help")} shortcut="?">
+            <HelpCircle size={17} />
+          </IconButton>
+        )}
         <IconButton label={t("action.about")} onClick={() => openDialog("about")}>
           <Info size={17} />
         </IconButton>

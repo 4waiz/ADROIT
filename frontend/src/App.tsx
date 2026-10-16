@@ -7,6 +7,8 @@ import { AboutDialog, HelpDialog, SettingsDialog } from "./components/Dialogs";
 import { Dock } from "./components/Dock";
 import { LeftPanel, RightPanel } from "./components/Panels";
 import { GalleryDialog, LoadDialog, SaveDialog } from "./components/Scenarios";
+import { SimplePanel } from "./components/simple/SimplePanel";
+import { Tutorial, useFirstVisitTour } from "./components/simple/Tutorial";
 import { Toasts } from "./components/Toasts";
 import { TopBar } from "./components/TopBar";
 import { Viewport } from "./components/Viewport";
@@ -19,7 +21,10 @@ export function App() {
   const dialog = useStore((s) => s.dialog);
   const theme = useStore((s) => s.theme);
   const lang = useStore((s) => s.lang);
+  const uiMode = useStore((s) => s.uiMode);
+  const tutorial = useStore((s) => s.tutorialOpen);
   useControls();
+  useFirstVisitTour();
 
   useEffect(() => {
     applyTheme(theme);
@@ -44,17 +49,19 @@ export function App() {
   }, []);
 
   return (
-    <div className="app">
+    <div className={`app mode-${uiMode}`}>
       <a href="#viewport" className="sr-only">{t("a11y.skip")}</a>
       <TopBar />
       <div className="workspace">
-        <LeftPanel />
+        {/* Simple mode keeps the factory and one plain panel; Expert adds every engineering panel. */}
+        {uiMode === "expert" ? <LeftPanel /> : <span aria-hidden />}
         <main className="center" id="viewport" aria-label={t("a11y.main")}>
           <Viewport />
-          <Dock />
+          {uiMode === "expert" && <Dock />}
         </main>
-        <RightPanel />
+        {uiMode === "expert" ? <RightPanel /> : <SimplePanel />}
       </div>
+      {tutorial && <Tutorial />}
       {dialog === "gallery" && <GalleryDialog />}
       {dialog === "about" && <AboutDialog />}
       {dialog === "settings" && <SettingsDialog />}

@@ -18,6 +18,10 @@ import type {
 export type Theme = "dark" | "light";
 export type Lang = "en" | "ar";
 export type Quality = "performance" | "balanced" | "ultra";
+/** Where the cell is drawn: a lit industrial hall, or the neutral studio stage. */
+export type EnvironmentName = "factory" | "studio";
+/** Simple shows what an operator needs in plain words; Expert adds every engineering panel. */
+export type UiMode = "simple" | "expert";
 export type Connection = "connecting" | "open" | "reconnecting" | "closed";
 export type LeftTab = "scene" | "library" | "scenarios";
 export type RightTab = "inspector" | "physics" | "twin";
@@ -65,6 +69,9 @@ interface Prefs {
   jogAngle: number; // rad
   jointStep: number; // rad
   angleUnit: "deg" | "rad";
+  environment: EnvironmentName;
+  uiMode: UiMode;
+  tutorialSeen: boolean;
 }
 
 const DEFAULT_PREFS: Prefs = {
@@ -99,6 +106,9 @@ const DEFAULT_PREFS: Prefs = {
   jogAngle: 0.0872665,
   jointStep: 0.0872665,
   angleUnit: "deg",
+  environment: "factory",
+  uiMode: "simple",
+  tutorialSeen: false,
 };
 
 function loadPrefs(): Prefs {
@@ -160,6 +170,7 @@ interface State extends Prefs {
   past: WorkcellDoc[];
   future: WorkcellDoc[];
   draftDirty: boolean;
+  tutorialOpen: boolean;
   renderStats: { fps: number; ms: number; calls: number; triangles: number; quality: Quality; shadows: boolean; ao: boolean };
 
   setPref<K extends keyof Prefs>(key: K, value: Prefs[K]): void;
@@ -201,6 +212,7 @@ export const useStore = create<State>((set, get) => ({
   past: [],
   future: [],
   draftDirty: false,
+  tutorialOpen: false,
   renderStats: { fps: 0, ms: 0, calls: 0, triangles: 0, quality: "balanced", shadows: false, ao: false },
 
   setPref(key, value) {

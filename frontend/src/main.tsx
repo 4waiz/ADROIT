@@ -22,6 +22,10 @@ import { useStore } from "./state/store";
   },
   frame: () => live.frame?.header ?? null,
   camera: () => getEngine()?.cameraState() ?? null,
+  // Camera moves for tests and recorded tours; they change only the view, never the simulation.
+  view: (eye: number[], target: number[], ms = 0) => getEngine()?.setView(eye, target, ms),
+  factory: () => getEngine()?.factoryOrigin() ?? null,
+  stats: () => useStore.getState().renderStats,
   manifest: () => {
     const m = live.manifest;
     return m ? { generation: m.generation, arms: m.arms.map((a) => ({ name: a.name, joints: a.joints.length })), subjects: m.subjects.map((x) => x.key) } : null;
