@@ -85,7 +85,7 @@ namespace Bridge.UI
         // and stand on the bottom edge, ending at column 718; the orange bar rides above the E.
         public const float LogoAspect = 778f / 184f;
         const float LogoLetters = 128f / 184f, LogoInk = 718f / 778f;
-        const string TitleAfterLogo = "'s Next-Gen Factory Digital Twin Simulation for Robotics";
+        const string TitleAfterLogo = "Next-Gen Factory Digital Twin Simulation for Robotics";
 
         /// <summary>
         /// Sets the BRIDGE logo where the title's first word would be: its letters as tall as the title's
@@ -100,9 +100,9 @@ namespace Bridge.UI
             float cap = (line.ascender - line.baseline) * capOfAscent;
             float h = cap / LogoLetters, w = h * LogoAspect;
             Go.Mesh("logo", title.transform, MeshKit.Quad(), WordmarkMaterial(), new Vector3(title.rectTransform.rect.xMin + w / 2, line.baseline + h / 2, 0), null, new Vector3(w, h, 1), cast: false, layer: Layers.UI);
-            // <space> counts in ems of 0.1 x the font size for 3D text; a little air before the apostrophe.
+            // <space> counts in ems of 0.1 x the font size for 3D text; then a word's space.
             float em = title.fontSize * 0.1f;
-            string gap = (w * LogoInk / em + 0.06f).ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+            string gap = (w * LogoInk / em + 0.3f).ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
             title.text = $"<space={gap}em>{TitleAfterLogo}";
             title.ForceMeshUpdate(true);
         }

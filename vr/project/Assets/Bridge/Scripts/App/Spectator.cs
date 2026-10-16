@@ -64,7 +64,7 @@ namespace Bridge.App
             scaler.matchWidthOrHeight = 0.5f;
             band = Panel(go.transform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -64), new Vector2(0, 0), new Color(0.05f, 0.06f, 0.08f, 0.72f));
             title = Label(go.transform, "", 22, new Vector2(0, 1), new Vector2(24, -14), new Vector2(1100, 40), TextAlignmentOptions.TopLeft, "Figtree-Bold");
-            LogoBeforeText(title, "'s Next-Gen Factory Digital Twin Simulation for Robotics  <size=70%><color=#9AA3AD>by Awaiz Ahmed</color></size>");
+            LogoBeforeText(title, "Next-Gen Factory Digital Twin Simulation for Robotics  <size=70%><color=#9AA3AD>by Awaiz Ahmed</color></size>");
             status = Label(go.transform, "", 17, new Vector2(1, 1), new Vector2(-24, -18), new Vector2(560, 40), TextAlignmentOptions.TopRight, "Figtree-SemiBold");
             Panel(go.transform, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 0), new Vector2(0, 96), new Color(0.05f, 0.06f, 0.08f, 0.72f));
             lesson = Label(go.transform, "", 18, new Vector2(0, 0), new Vector2(24, 82), new Vector2(1100, 80), TextAlignmentOptions.TopLeft, "Figtree-Medium");
@@ -111,8 +111,8 @@ namespace Bridge.App
             rt.pivot = Vector2.zero;
             rt.sizeDelta = new Vector2(w, h);
             rt.localPosition = new Vector3(text.rectTransform.rect.xMin, line.baseline, 0);
-            // <space> counts in ems of the font size for screen text; a little air before the apostrophe.
-            string gap = (w * LogoInk / text.fontSize + 0.06f).ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+            // <space> counts in ems of the font size for screen text; then a word's space.
+            string gap = (w * LogoInk / text.fontSize + 0.3f).ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
             text.text = $"<space={gap}em>{rest}";
         }
 
