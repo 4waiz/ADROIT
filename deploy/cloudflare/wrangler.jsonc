@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // BRIDGE | Digital Twin Studio at https://adroit.bridgeae.com: the production build of
+  // frontend/ as static assets, and a Worker (src/index.ts) that answers what a BRIDGE service
+  // would, /api/* and the /ws socket, with "no simulation here". From this folder:
+  // `npm install`, then `npm run deploy` (it builds the page into ./dist first).
+  "name": "adroit",
+  // Bridgesoftwareteam@gmail.com's Account, which holds the bridgeae.com zone. The login can
+  // reach a second account, so the account is named here rather than picked at deploy time.
+  "account_id": "78477b5ac310a12d7dbd76555b8be974",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // The page has one document; any other path that is not a file gets index.html.
+    "not_found_handling": "single-page-application",
+    // Only what the page asks a BRIDGE service for reaches the Worker; every file is served
+    // without it.
+    "run_worker_first": ["/api/*", "/ws"]
+  },
+  "routes": [{ "pattern": "adroit.bridgeae.com", "custom_domain": true }],
+  "workers_dev": false,
+  "observability": { "enabled": true }
+}

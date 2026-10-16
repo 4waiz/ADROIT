@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { bridge } from "./api/socket";
 import { AboutDialog, HelpDialog, SettingsDialog } from "./components/Dialogs";
 import { Dock } from "./components/Dock";
+import { OfflinePage } from "./components/OfflinePage";
 import { LeftPanel, RightPanel } from "./components/Panels";
 import { GalleryDialog, LoadDialog, SaveDialog } from "./components/Scenarios";
 import { SimplePanel } from "./components/simple/SimplePanel";
@@ -23,6 +24,7 @@ export function App() {
   const lang = useStore((s) => s.lang);
   const uiMode = useStore((s) => s.uiMode);
   const tutorial = useStore((s) => s.tutorialOpen);
+  const presence = useStore((s) => s.presence);
   useControls();
   useFirstVisitTour();
 
@@ -34,7 +36,7 @@ export function App() {
   }, [lang]);
 
   useEffect(() => {
-    bridge.connect();
+    bridge.start();
     const beforeUnload = (e: BeforeUnloadEvent) => {
       if (useStore.getState().draftDirty) {
         e.preventDefault();
@@ -47,6 +49,10 @@ export function App() {
       bridge.close();
     };
   }, []);
+
+  // Served away from the simulation's machine, the studio opens only once a service answers;
+  // until then the page says plainly that the simulation is offline. Locally this is always live.
+  if (presence !== "live") return <OfflinePage checking={presence === "checking"} />;
 
   return (
     <div className={`app mode-${uiMode}`}>

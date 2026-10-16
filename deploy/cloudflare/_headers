@@ -1,0 +1,10 @@
+# Headers Cloudflare adds to the page's files (not to the Worker's answers). `npm run build`
+# copies this file into dist/, beside the page.
+
+# Vite names each built file after its content, so a file under /assets never changes.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin

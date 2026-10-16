@@ -32,6 +32,8 @@ export function useControls(): void {
     const onKey = (e: KeyboardEvent) => {
       if (typing(e.target)) return;
       const store = useStore.getState();
+      // The offline page has no studio for a shortcut to act on (locally the page is always live).
+      if (store.presence !== "live") return;
       const mod = e.ctrlKey || e.metaKey;
       if (mod && e.key.toLowerCase() === "s") {
         e.preventDefault();

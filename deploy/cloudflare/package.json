@@ -1,0 +1,16 @@
+{
+  "name": "bridge-adroit",
+  "private": true,
+  "version": "0.1.0",
+  "description": "BRIDGE | Digital Twin Studio at adroit.bridgeae.com: the browser client as static assets on Cloudflare, with a Worker that says no simulation answers there.",
+  "license": "LicenseRef-BRIDGE",
+  "type": "module",
+  "scripts": {
+    "build": "npm --prefix ../../frontend run build -- --outDir ../deploy/cloudflare/dist --emptyOutDir && node -e \"require('node:fs').copyFileSync('_headers', 'dist/_headers')\"",
+    "dev": "npm run build && wrangler dev",
+    "deploy": "npm run build && wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.151.0"
+  }
+}

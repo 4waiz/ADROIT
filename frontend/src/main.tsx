@@ -18,7 +18,7 @@ import { useStore } from "./state/store";
 (window as unknown as { __BRIDGE__: unknown }).__BRIDGE__ = {
   state: () => {
     const s = useStore.getState();
-    return { selected: s.selected, connection: s.connection, status: s.status, theme: s.theme, lang: s.lang, generation: s.manifest?.generation };
+    return { selected: s.selected, presence: s.presence, connection: s.connection, status: s.status, theme: s.theme, lang: s.lang, generation: s.manifest?.generation };
   },
   frame: () => live.frame?.header ?? null,
   camera: () => getEngine()?.cameraState() ?? null,

@@ -4,11 +4,16 @@
 // Commands are never queued for later and never re-sent: a command issued while the socket is
 // down is refused on the spot, so a reconnect cannot make a robot repeat a move. Each command
 // carries a fresh id; the host answers it (and answers a repeated id with its first outcome).
+//
+// Served away from the simulation's own machine (adroit.bridgeae.com), the page asks whether a
+// service answers before each connection (./presence.ts); while none does, it shows its offline
+// state and asks again now and then, quietly.
 
 import { live } from "../state/live";
 import { useStore } from "../state/store";
 import { telemetry } from "../state/telemetry";
 import { decodeFrame } from "./frames";
+import { servedLocally, serviceAnswers } from "./presence";
 import { getBinary, getJson } from "./rest";
 import type { Ack, CommandRecord, EventRecord, HostStatus, Manifest, ServiceInfo } from "./types";
 
@@ -29,6 +34,22 @@ class BridgeSocket {
   private lastTelemetryAt = 0;
   private pingTimer = 0;
   private closedByUs = false;
+  private probeTimer = 0;
+  private probes = 0;
+  private probing = false;
+
+  /** Begin. On the simulation's own machine, connect at once, as the page always has; served
+   *  from anywhere else, ask first whether a service answers. */
+  start(): void {
+    if (servedLocally()) {
+      this.connect();
+      return;
+    }
+    this.closedByUs = false;
+    document.addEventListener("visibilitychange", this.wake);
+    window.addEventListener("online", this.wake);
+    void this.probe();
+  }
 
   connect(): void {
     this.closedByUs = false;
@@ -62,7 +83,9 @@ class BridgeSocket {
       useStore.setState({ connection: this.closedByUs ? "closed" : "reconnecting", latencyMs: null, pending: {} });
       if (!this.closedByUs) {
         const delay = Math.min(8000, 400 * 2 ** this.retry++);
-        window.setTimeout(() => this.connect(), delay);
+        // Away from the simulation's machine, ask before reconnecting: a service that has gone
+        // brings up the offline state rather than a reconnect loop that cannot succeed.
+        window.setTimeout(() => (servedLocally() ? this.connect() : void this.probe()), delay);
       }
     };
     ws.onerror = () => {
@@ -75,9 +98,49 @@ class BridgeSocket {
     const ws = this.ws;
     this.ws = null;
     window.clearInterval(this.pingTimer);
+    window.clearTimeout(this.probeTimer);
+    document.removeEventListener("visibilitychange", this.wake);
+    window.removeEventListener("online", this.wake);
     ws?.close();
     useStore.setState({ connection: "closed" });
   }
+
+  /** Served away from the simulation: ask /api/health, and connect if a service answers. If none
+   *  does, show the offline state and ask again later: after 5 s, doubling to once a minute, and
+   *  not while the tab is hidden (`wake` asks as soon as it is back, or the network returns). */
+  private async probe(): Promise<void> {
+    window.clearTimeout(this.probeTimer);
+    if (this.closedByUs || this.probing) return;
+    if (useStore.getState().presence === "offline" && document.hidden) return;
+    this.probing = true;
+    const answers = await serviceAnswers();
+    this.probing = false;
+    if (this.closedByUs) return;
+    if (answers) {
+      this.probes = 0;
+      useStore.setState({ presence: "live" });
+      this.connect();
+      return;
+    }
+    if (useStore.getState().presence === "live") {
+      // Drop the scene this page drew, so a service that answers later (restarted, perhaps, its
+      // generations counting from 1 again) is loaded afresh rather than mistaken for this one.
+      this.retry = 0;
+      live.manifest = null;
+      live.geometry = null;
+      live.frame = null;
+      useStore.setState({ presence: "offline", status: null, manifest: null, telemetry: null, info: null, sceneLoading: null, sceneError: null });
+    } else {
+      useStore.setState({ presence: "offline" });
+    }
+    const delay = Math.min(60_000, 5000 * 2 ** this.probes);
+    this.probes = Math.min(this.probes + 1, 4);
+    this.probeTimer = window.setTimeout(() => void this.probe(), delay);
+  }
+
+  private wake = (): void => {
+    if (!document.hidden && useStore.getState().presence === "offline") void this.probe();
+  };
 
   get isOpen(): boolean {
     return this.ws?.readyState === WebSocket.OPEN;

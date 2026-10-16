@@ -2384,3 +2384,171 @@ pre.license {
     animation: none;
   }
 }
+
+/* ------------------------------------------------------------ offline page */
+/* Served away from the simulation's machine while nothing answers (OfflinePage.tsx): a page of
+   its own, readable from a phone up, rather than the studio's 1024 px layout. */
+.offline {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100%;
+  overflow: auto;
+  background: var(--bg-0);
+}
+/* The viewport's floor grid, faint, fading out from behind the card. */
+.offline::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--plot-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--plot-grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 10%, transparent 72%);
+  mask-image: radial-gradient(ellipse at 50% 40%, #000 10%, transparent 72%);
+}
+
+.offline-bar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-panel);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--bar-h);
+  padding-inline: 16px 10px;
+  background: var(--bg-1);
+  border-bottom: 1px solid var(--line);
+}
+/* The studio's bar drops its subtitle below 1440 px to make room for its chips; this one has room. */
+.offline-bar .brand-title span {
+  display: block;
+}
+
+.offline-main {
+  display: grid;
+  place-items: center;
+  padding: clamp(16px, 4vw, 48px) 16px;
+}
+/* A quick answer never shows the loader; a slow one fades it in. */
+.offline-checking {
+  animation: fade var(--t) var(--ease) 400ms both;
+}
+
+.offline-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  align-items: center;
+  gap: clamp(24px, 3.5vw, 44px);
+  width: min(1180px, 100%);
+  padding: clamp(20px, 3.5vw, 40px);
+  background: var(--bg-1);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  animation: rise 320ms var(--ease) both;
+}
+.offline-copy {
+  min-width: 0;
+}
+.offline-copy h1 {
+  margin: 14px 0 12px;
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--text-0);
+  text-wrap: balance;
+}
+.offline-copy p {
+  margin: 0 0 12px;
+  max-width: 64ch;
+  font-size: var(--fs-md);
+  line-height: 1.65;
+  color: var(--text-1);
+}
+.offline-copy .offline-lede {
+  font-size: var(--fs-lg);
+}
+.offline-copy .section-title {
+  margin: 24px 0 8px;
+}
+
+.offline-command {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 64ch;
+  padding-block: 4px;
+  padding-inline: 12px 4px;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  border-inline-start: 3px solid var(--accent);
+  border-radius: var(--radius);
+}
+.offline-command code {
+  flex: 1;
+  min-width: 0;
+  padding-block: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-0);
+  overflow-wrap: anywhere;
+}
+
+.offline-shot {
+  margin: 0;
+  min-width: 0;
+}
+.offline-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1564 / 1032;
+  object-fit: cover;
+  background: var(--bg-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+}
+.offline-shot figcaption {
+  margin-top: 8px;
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+.offline-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px 18px;
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+}
+
+@media (max-width: 900px) {
+  .offline-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 520px) {
+  .offline-bar .brand-title span {
+    display: none;
+  }
+  .offline-card {
+    padding: 20px 16px;
+  }
+}
+@media (max-width: 360px) {
+  .offline-bar .brand-title,
+  .offline-bar .brand-divider {
+    display: none;
+  }
+}

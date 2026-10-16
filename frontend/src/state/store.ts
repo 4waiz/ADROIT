@@ -3,6 +3,7 @@
 // panels render: connection, status, the manifest, selection, logs, preferences, dialogs.
 
 import { create } from "zustand";
+import { type Presence, servedLocally } from "../api/presence";
 import type {
   Ack,
   CommandRecord,
@@ -147,6 +148,8 @@ export interface PendingCommand {
 }
 
 interface State extends Prefs {
+  /** Whether a simulation answers this page; always "live" where the service serves it locally. */
+  presence: Presence;
   connection: Connection;
   latencyMs: number | null;
   clientId: string;
@@ -189,6 +192,7 @@ let toastSeq = 0;
 
 export const useStore = create<State>((set, get) => ({
   ...loadPrefs(),
+  presence: servedLocally() ? "live" : "checking",
   connection: "connecting",
   latencyMs: null,
   clientId: "",

@@ -31,3 +31,8 @@ frontend/node_modules/
 frontend/dist/
 bridge_studio/static/
 *.tsbuildinfo
+
+# BRIDGE on Cloudflare: the Worker's packages and wrangler's working files (the page it
+# serves is built into deploy/cloudflare/dist/, ignored above).
+deploy/cloudflare/node_modules/
+deploy/cloudflare/.wrangler/
