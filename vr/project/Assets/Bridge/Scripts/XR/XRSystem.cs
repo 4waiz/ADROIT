@@ -263,7 +263,6 @@ namespace Bridge.XR
             if (XRActive) ReadControllers();
             else Desktop(dt);
             foreach (var h in Hands) h.Track(dt);
-            Head.GetComponent<Camera>().stereoTargetEye = XRActive ? StereoTargetEyeMask.Both : StereoTargetEyeMask.None;
         }
 
         static readonly List<XRDisplaySubsystem> displays = new();

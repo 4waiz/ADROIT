@@ -38,7 +38,6 @@ namespace Bridge.App
             var s = go.AddComponent<Spectator>();
             s.app = app;
             s.cam = go.AddComponent<Camera>();
-            s.cam.stereoTargetEye = StereoTargetEyeMask.None;
             s.cam.depth = 10;
             s.cam.fieldOfView = 72;
             s.cam.nearClipPlane = 0.03f;
@@ -46,6 +45,8 @@ namespace Bridge.App
             s.cam.enabled = false;
             var data = s.cam.GetUniversalAdditionalCameraData();
             data.renderPostProcessing = true;
+            // The laptop's screen only: never into the headset, where it would draw over the trainee's own eyes.
+            data.allowXRRendering = false;
             s.BuildOverlay();
             return s;
         }
