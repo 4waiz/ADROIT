@@ -1121,6 +1121,42 @@ a:hover {
   color: var(--text-1);
 }
 
+/* The keyboard-flight hint, under the view tools until the camera first flies. */
+.hud-keys {
+  top: 56px;
+  inset-inline-start: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  max-width: min(560px, calc(100% - 20px));
+  padding: 5px 6px 5px 10px;
+  font-size: var(--fs-sm);
+  color: var(--text-1);
+}
+.hud-keys > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+.hud-keys .close {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-inline-start: auto;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+}
+.hud-keys .close:hover {
+  color: var(--text-0);
+  background: var(--hud-line);
+}
+
 .hud-axes {
   bottom: 60px;
   inset-inline-end: 12px;
@@ -1769,6 +1805,9 @@ pre.license {
   .hud-goal {
     top: 54px;
     max-width: calc(100% - 20px);
+  }
+  .hud-keys {
+    top: 96px;
   }
   .hud-perf {
     bottom: 64px;

@@ -12,6 +12,7 @@ import {
   Eye,
   Factory,
   Gauge,
+  House,
   Layers,
   Move3d,
   Pause,
@@ -23,6 +24,7 @@ import {
   Sparkles,
   Target,
   Video,
+  X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { bridge } from "../api/socket";
@@ -37,6 +39,23 @@ import { IconButton, MenuItem, Popover } from "./ui/primitives";
 let engineRef: ViewportEngine | null = null;
 export function getEngine(): ViewportEngine | null {
   return engineRef;
+}
+
+// The keyboard-flight hint shows until the camera first flies, or is dismissed: once per browser.
+const FLY_HINT = "bridge.flyHint";
+function flyHintWanted(): boolean {
+  try {
+    return localStorage.getItem(FLY_HINT) !== "done";
+  } catch {
+    return true;
+  }
+}
+function flyHintDone(): void {
+  try {
+    localStorage.setItem(FLY_HINT, "done");
+  } catch {
+    // A private window may refuse storage; the hint then comes back next time.
+  }
 }
 
 function download(blob: Blob, name: string) {
@@ -79,10 +98,20 @@ export function Viewport() {
   const [menu, setMenu] = useState<"camera" | "overlays" | "quality" | "follow" | "speed" | null>(null);
   const [follow, setFollow] = useState<FollowMode>("none");
   const [snapshotBusy, setSnapshotBusy] = useState(false);
+  const [flyHint, setFlyHint] = useState(flyHintWanted);
+  const dismissFlyHint = useCallback(() => {
+    flyHintDone();
+    setFlyHint(false);
+  }, []);
 
   useEffect(() => {
     if (!host.current) return;
     const engine = new ViewportEngine(host.current, {
+      // The keys have the camera now: a follow mode lets go, and the hint has done its job.
+      onFly: () => {
+        setFollow("none");
+        dismissFlyHint();
+      },
       onSelect: (key) => useStore.getState().select(key),
       onCursor: (arm, position, quat, phase) => bridge.cursor(arm, position, quat, phase),
       onDraftMove: (id, at, rpy) => {
@@ -261,7 +290,7 @@ export function Viewport() {
           </IconButton>
         )}
         <IconButton label={t("viewport.reset")} onClick={() => engineRef?.applyPreset("iso")} shortcut="Home">
-          <RotateCcw size={16} />
+          <House size={16} />
         </IconButton>
         <span className="sep" />
         {!simple && (
@@ -333,19 +362,43 @@ export function Viewport() {
         </IconButton>
       </div>
 
+      {flyHint && manifest && connection === "open" && (
+        <div className="hud hud-keys" role="note" aria-label={t("fly.label")}>
+          <span>
+            <kbd>W</kbd>
+            <kbd>A</kbd>
+            <kbd>S</kbd>
+            <kbd>D</kbd> {t("fly.move")}
+          </span>
+          <span>
+            <kbd>Q</kbd>
+            <kbd>E</kbd> {t("fly.upDown")}
+          </span>
+          <span>
+            <kbd>Shift</kbd> {t("fly.faster")}
+          </span>
+          <span>
+            <House size={13} aria-hidden /> <kbd>Home</kbd> {t("fly.reset")}
+          </span>
+          <button type="button" className="close" onClick={dismissFlyHint} aria-label={t("fly.dismiss")} title={t("fly.dismiss")}>
+            <X size={13} />
+          </button>
+        </div>
+      )}
+
       {armSelected && !simple && (
         <div className="hud hud-gizmo" role="toolbar" aria-label={t("viewport.gizmo")}>
-          <IconButton label={t("gizmo.translate")} active={gizmoMode === "translate"} onClick={() => setPref("gizmoMode", "translate")} shortcut="W">
+          <IconButton label={t("gizmo.translate")} active={gizmoMode === "translate"} onClick={() => setPref("gizmoMode", "translate")} shortcut="T">
             <Move3d size={16} />
           </IconButton>
-          <IconButton label={t("gizmo.rotate")} active={gizmoMode === "rotate"} onClick={() => setPref("gizmoMode", "rotate")} shortcut="E">
+          <IconButton label={t("gizmo.rotate")} active={gizmoMode === "rotate"} onClick={() => setPref("gizmoMode", "rotate")} shortcut="R">
             <Rotate3d size={16} />
           </IconButton>
           <IconButton
             label={gizmoSpace === "world" ? t("gizmo.world") : t("gizmo.local")}
             active={gizmoSpace === "local"}
             onClick={() => setPref("gizmoSpace", gizmoSpace === "world" ? "local" : "world")}
-            shortcut="Q"
+            shortcut="L"
           >
             <Box size={16} />
           </IconButton>

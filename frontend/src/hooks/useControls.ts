@@ -8,9 +8,12 @@ import { bridge } from "../api/socket";
 import { getEngine } from "../components/Viewport";
 import { live } from "../state/live";
 import { useStore } from "../state/store";
-import type { PresetName } from "../viewport/engine";
+import type { FlyMove, PresetName } from "../viewport/engine";
 
 const PRESETS: PresetName[] = ["iso", "operator", "front", "side", "top", "tool"];
+
+// Flying goes by where a key sits, not what it types, so it works under an Arabic layout too.
+const FLY_KEYS: Record<string, FlyMove> = { KeyW: "forward", KeyS: "back", KeyA: "left", KeyD: "right", KeyQ: "down", KeyE: "up" };
 
 function typing(target: EventTarget | null): boolean {
   const el = target as HTMLElement | null;
@@ -74,8 +77,10 @@ export function useControls(): void {
         case ".":
           void bridge.command("sim.step", { count: 1 });
           return;
+        case "r":
         case "R":
           if (e.shiftKey) void bridge.command("sim.reset");
+          else store.setPref("gizmoMode", "rotate");
           return;
         case "o":
         case "O":
@@ -88,16 +93,13 @@ export function useControls(): void {
         case "Home":
           getEngine()?.applyPreset("iso");
           return;
-        case "w":
-        case "W":
+        // W, E and Q fly the camera (below), so the gizmo answers to T, R and L.
+        case "t":
+        case "T":
           store.setPref("gizmoMode", "translate");
           return;
-        case "e":
-        case "E":
-          store.setPref("gizmoMode", "rotate");
-          return;
-        case "q":
-        case "Q":
+        case "l":
+        case "L":
           store.setPref("gizmoSpace", store.gizmoSpace === "world" ? "local" : "world");
           return;
         case "ArrowUp":
@@ -155,6 +157,35 @@ export function useControls(): void {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // W A S D walk the camera over the floor, Q and E take it down and up, Shift hurries it.
+  useEffect(() => {
+    const onDown = (e: KeyboardEvent) => {
+      if (e.key === "Shift") {
+        getEngine()?.setFlyFast(true);
+        return;
+      }
+      const move = FLY_KEYS[e.code];
+      if (!move || typing(e.target) || e.ctrlKey || e.metaKey || e.altKey || useStore.getState().dialog) return;
+      e.preventDefault();
+      getEngine()?.fly(move, true, e.shiftKey);
+    };
+    const onUp = (e: KeyboardEvent) => {
+      if (e.key === "Shift") getEngine()?.setFlyFast(false);
+      const move = FLY_KEYS[e.code];
+      if (move) getEngine()?.fly(move, false, e.shiftKey);
+    };
+    // A key let go of while the page is not looking never arrives: stop rather than drift on.
+    const onBlur = () => getEngine()?.stopFlying();
+    window.addEventListener("keydown", onDown);
+    window.addEventListener("keyup", onUp);
+    window.addEventListener("blur", onBlur);
+    return () => {
+      window.removeEventListener("keydown", onDown);
+      window.removeEventListener("keyup", onUp);
+      window.removeEventListener("blur", onBlur);
+    };
   }, []);
 
   // Gamepad: left stick x/y, right stick z, triggers grip. Polled only while a pad is connected.

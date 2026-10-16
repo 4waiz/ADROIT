@@ -35,12 +35,19 @@ class HalfGTAOPass extends GTAOPass {
 
 export type PresetName = "iso" | "operator" | "front" | "side" | "top" | "tool";
 export type FollowMode = "none" | "robot" | "tool";
+export type FlyMove = "forward" | "back" | "left" | "right" | "up" | "down";
+
+/** Keyboard flight speed: metres per second for each metre between the camera and the point it
+ *  orbits, within these bounds, so close in it creeps and from across the hall it walks. */
+const FLY = { perMetre: 0.9, min: 0.45, max: 3.2, fast: 3 } as const;
 
 export interface EngineEvents {
   onSelect(key: string | null): void;
   onCursor(arm: string, position: number[], quat: number[], phase: "start" | "update" | "end"): void;
   onDraftMove(id: string, at: Vec3, rpy: Vec3): void;
   onStats(stats: { fps: number; ms: number; calls: number; triangles: number; quality: Quality; shadows: boolean; ao: boolean }): void;
+  /** The movement keys took the camera: any follow mode has let go of it. */
+  onFly?(): void;
 }
 
 const THEMES = {
@@ -115,6 +122,10 @@ export class ViewportEngine {
   private follow: FollowMode = "none";
   private followArm: string | null = null;
   private tween: { from: [THREE.Vector3, THREE.Vector3]; to: [THREE.Vector3, THREE.Vector3]; t0: number; ms: number } | null = null;
+  // Keyboard flight: the movement keys held, Shift, and the camera's eased velocity (world, m/s).
+  private flyHeld = new Set<FlyMove>();
+  private flyFast = false;
+  private flyVelocity = new THREE.Vector3();
   private raycaster = new THREE.Raycaster();
   private pointerDown: { x: number; y: number; t: number } | null = null;
   private resizeObserver: ResizeObserver;
@@ -832,7 +843,71 @@ export class ViewportEngine {
     this.moveTo(centre.clone().addScaledVector(dir, distance), centre, true);
   }
 
+  /** Holds or lets go of one movement key. While any is held the camera and the point it orbits
+   *  travel together, so on letting go the orbit is as it was, only somewhere else. */
+  fly(move: FlyMove, held: boolean, fast: boolean): void {
+    this.flyFast = fast;
+    if (!held) {
+      this.flyHeld.delete(move);
+      return;
+    }
+    if (!this.flyHeld.size && this.flyVelocity.lengthSq() < 1e-6) {
+      // A new flight: the keys take the camera from a preset's glide or a follow mode.
+      this.tween = null;
+      this.follow = "none";
+      this.events.onFly?.();
+    }
+    this.flyHeld.add(move);
+  }
+
+  setFlyFast(fast: boolean): void {
+    this.flyFast = fast;
+  }
+
+  /** Lets go of every movement key at once, as when the page loses focus mid-flight. */
+  stopFlying(): void {
+    this.flyHeld.clear();
+  }
+
+  private applyFly(dt: number): void {
+    const held = this.flyHeld;
+    const axis = (plus: FlyMove, minus: FlyMove) => (held.has(plus) ? 1 : 0) - (held.has(minus) ? 1 : 0);
+    const along = axis("forward", "back");
+    const across = axis("right", "left");
+    const rise = axis("up", "down");
+    if (!along && !across && !rise && this.flyVelocity.lengthSq() < 1e-6) {
+      this.flyVelocity.set(0, 0, 0);
+      return;
+    }
+    // Ahead is where the camera looks, laid flat on the floor; looking straight down, the screen's up.
+    const look = this.controls.target.clone().sub(this.camera.position);
+    const ahead = new THREE.Vector3(look.x, look.y, 0);
+    if (ahead.lengthSq() < 1e-8) ahead.set(0, 1, 0).applyQuaternion(this.camera.quaternion).setZ(0);
+    if (ahead.lengthSq() < 1e-8) ahead.set(1, 0, 0);
+    ahead.normalize();
+    const right = new THREE.Vector3(ahead.y, -ahead.x, 0);
+    const wish = new THREE.Vector3().addScaledVector(ahead, along).addScaledVector(right, across).setZ(rise);
+    if (wish.lengthSq() > 1) wish.normalize();
+    const speed = THREE.MathUtils.clamp(look.length() * FLY.perMetre, FLY.min, FLY.max) * (this.flyFast ? FLY.fast : 1);
+    // Eased in and out over about a tenth of a second: a tap nudges, a hold glides.
+    this.flyVelocity.lerp(wish.multiplyScalar(speed), 1 - Math.exp(-dt * 10));
+    const before = this.camera.position.clone();
+    this.camera.position.addScaledVector(this.flyVelocity, dt);
+    if (this.environmentName === "factory") {
+      this.keepInsideHall();
+    } else {
+      // The studio has no walls: stay over its floor, and above it.
+      const p = this.camera.position;
+      const r = Math.hypot(p.x, p.y);
+      if (r > 13) p.set((p.x * 13) / r, (p.y * 13) / r, p.z);
+      p.z = Math.max(p.z, 0.1);
+    }
+    // The orbit point moves exactly as far as the camera could, walls included.
+    this.controls.target.add(this.camera.position.clone().sub(before));
+  }
+
   private moveTo(position: THREE.Vector3, target: THREE.Vector3, animate: boolean): void {
+    this.flyVelocity.set(0, 0, 0);
     if (!animate || this.reducedMotion) {
       this.camera.position.copy(position);
       this.controls.target.copy(target);
@@ -922,6 +997,7 @@ export class ViewportEngine {
       if (k >= 1) this.tween = null;
     }
     this.applyFrame();
+    this.applyFly(Math.min(dt, 50) / 1000);
     this.applyFollow();
     this.controls.update();
     if (this.environmentName === "factory") {
