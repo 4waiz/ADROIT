@@ -527,8 +527,14 @@ def create_app(config: BridgeConfig | None = None, host: SimHost | None = None) 
         finally:
             host.broadcast.unsubscribe(notify)
             receiver.cancel()
-            with contextlib.suppress(BaseException):
+            try:
                 await receiver
+            except (asyncio.CancelledError, WebSocketDisconnect):
+                pass
+            except Exception as exc:
+                # A message the service could not handle ends this socket and the page reconnects;
+                # say why, so a reconnect with no visible cause leaves a trace.
+                print(f"[bridge] socket {client} closed: {type(exc).__name__}: {exc}", flush=True)
 
     # ---------------------------------------------------------------- client
     static_dir = Path(config.static_dir)
