@@ -82,6 +82,25 @@ browser (React + TypeScript + three.js)                 python (one process)
 * **Hardware.** Simulation is the only command target. A connector interface
   exists with a disconnected default; no hardware is claimed.
 
+## The page: factory, two modes, a tour
+
+* **The factory** (`frontend/src/viewport/factory/`) is the room the simulated
+  cell stands in, drawn by the client only: a portal-frame hall, racking, a CNC
+  line, a conveyor, the cell's boundary, cabinet and operator panel. It is built
+  from code plus a few CC0 assets (an HDRI for image-based light, scanned floor
+  and steel textures, props; `frontend/public/factory/ASSETS.md`), merged into a
+  few dozen draw calls. It is laid out around the loaded cell's footprint and
+  rebuilt with each scenario. Nothing in it is simulated; the stack light and the
+  panel's screen only report the host's state. The studio stage stays as the
+  other environment.
+* **Simple and Expert.** Simple mode shows the factory and one plain panel (the
+  scene, arrows for the hand, Open/Close, programs, the goal); Expert mode is the
+  full command centre. Both send the same validated commands; Simple's arrows
+  are `arm.cursor` moves relative to the camera's ground-plane axes, and a taught
+  program is a `task.run` with `pose`, `grip`, `wait` and `home` steps.
+* **The tour** lights one control at a time (`data-tour` anchors) and opens on a
+  first visit; it is remembered in the browser's preferences.
+
 ## Packages added
 
 | Path | What |

@@ -13,18 +13,24 @@
 </p>
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/bridge/media/studio-dark.webp" />
-    <img alt="The BRIDGE command centre: the scene tree, a Franka Panda reaching for a cube in the 3D viewport, the arm inspector with its gripper, end effector and jog controls, and the task panel running a pick-and-place routine" src="docs/bridge/media/studio-light.webp" width="100%" />
-  </picture>
+  <img alt="A digital factory hall: pallet racking, a roller door, a CNC machine line and a conveyor around a robot cell painted on the floor as CELL 01, with its control cabinet and stack light lit green and its operator panel reading RUNNING" src="docs/bridge/media/factory-hall.webp" width="100%" />
 </p>
 
-BRIDGE is a browser command centre for robot workcells simulated on the GPU. A
-Python service owns the simulation (Newton, MuJoCo Warp, SuperDex) and streams
-it to the page; the page draws what the simulator reports and sends commands
-back, and every command is validated and acknowledged. The readings on screen
-come from the simulator and are labelled *Simulated*. A value a solver does not
-expose is shown as unavailable, never made up.
+BRIDGE puts a GPU-simulated robot cell in a digital factory you can drive from a
+browser. Move the robot with arrows, open and close its hand, run a ready-made
+program or teach your own, and watch the physics do the rest. A Python service
+owns the simulation (Newton, MuJoCo Warp, SuperDex) and streams it to the page;
+the page draws what the simulator reports and sends commands back, each one
+validated and acknowledged. The readings come from the simulator and are
+labelled *Simulated*: a value a solver does not expose is shown as unavailable,
+never made up.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/bridge/media/factory-simple-dark.webp" />
+    <img alt="Simple mode: the factory fills the screen while a Franka Panda runs its pick-and-place program; one plain panel describes the scene, moves the robot's hand with arrows, opens and closes it, and runs or teaches programs" src="docs/bridge/media/factory-simple-light.webp" width="100%" />
+  </picture>
+</p>
 
 ## Start it
 
@@ -45,6 +51,12 @@ they are cached after that, and a scene then builds in 5 to 70 seconds. Options:
 `-NoSync` (skip syncing the Python environment). Ctrl+C stops the simulation and the
 service.
 
+The page opens in **Simple** mode with a one-minute guided tour (reopen it from
+the graduation-cap button). **Expert** mode, one click away in the top bar, adds
+every engineering panel. On a laptop with two GPUs, Windows may give the browser
+the integrated one: the factory then runs at about 40 fps instead of 240. Pick
+the browser under Settings, Display, Graphics, and set it to High performance.
+
 The same service on Linux, where the upstream toolkit is developed (not tested
 with BRIDGE yet):
 
@@ -58,6 +70,10 @@ uv run python -m bridge_studio --open
 
 | | |
 | --- | --- |
+| **Digital factory** | The cell stands in a 36 x 26 m hall: an epoxy floor with painted walkways and the cell's boundary, a portal-frame roof with skylights and LED high-bays, pallet racking, a CNC machine line, a conveyor, a control cabinet whose stack light shows what the simulation is doing (green running, blue program, amber paused, red fault) and an operator panel that says it in words. Photo-scanned materials and props (Poly Haven, CC0) and image-based light; nothing in the hall is simulated, and a plain studio stage is one click away. |
+| **Simple mode** | One panel in plain words: the scene in a sentence, the robot's hand moved with arrows (left, right, towards and away from you, up and down, as the camera sees it), a big Open/Close button, ready-made programs, and a goal that turns green when it is met. |
+| **Teach a program** | Move the hand, press *Save this spot*, add *Close hand*, *Wait*, *Go home*, then *Run my program*; or let *Quick start* build a pick-and-place. Programs run on the service as tasks, step by step, and can repeat. |
+| **Guided tour** | Twelve steps that light up each control and say what it does, in English or Arabic; it opens on a first visit. |
 | **Viewport** | A three.js view built from the compiled model, with PBR materials and shadows: orbit, pan, zoom, view presets, perspective or orthographic, follow and focus, selection outlines, a transform gizmo, screenshots. Performance, Balanced and Ultra profiles, with the measured frame time on screen. |
 | **Robot control** | Joint sliders with each joint's limits and units; an end-effector gizmo solved by inverse kinematics, with a reachability check that reports the residual; gripper open and close, read back as the measured opening; keyboard and button jogging at a chosen step, and a gamepad where one is connected (not yet tried with a real pad). Each command is answered *accepted*, *rejected* (with the reason), *completed*, *failed* or *interrupted*. |
 | **Simulation** | Play, pause, single control step, reset, speed from 0.1x to as fast as the GPU goes. The step rate, real-time factor and per-step physics and control cost are measured, not estimated. |
@@ -70,8 +86,16 @@ uv run python -m bridge_studio --open
 | **Interface** | Dark and light themes, English and Arabic (right to left), keyboard shortcuts, from 1366x768 up. |
 
 <p align="center">
+  <img alt="The guided tour lighting up the arrows that move the robot's hand, with a card that explains them" src="docs/bridge/media/tour.webp" width="49%" />
+  <img alt="Simple mode in Arabic, laid out right to left" src="docs/bridge/media/arabic-rtl.webp" width="49%" />
+</p>
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/bridge/media/studio-dark.webp" />
+    <img alt="Expert mode on the studio stage: the scene tree, the arm inspector with its joints, end effector and jog controls, and the task panel running a pick-and-place routine" src="docs/bridge/media/studio-light.webp" width="49%" />
+  </picture>
   <img alt="The scenario gallery: pick and place, surface wiping, cloth manipulation, cable routing, a multi-robot workcell and a soft sponge grasp, each with its robot, physics and success measure" src="docs/bridge/media/gallery.webp" width="49%" />
-  <img alt="The same command centre in Arabic, laid out right to left, with the arm holding the cube" src="docs/bridge/media/arabic-rtl.webp" width="49%" />
 </p>
 
 ### Scenarios
@@ -106,6 +130,10 @@ itself).
 - **Not measured from a real robot.** Telemetry is simulated. Effort is MuJoCo's
   actuator force where the solver exposes it, contacts are the solver's contact
   table, and nothing is filled in where a solver is silent.
+- **The factory is scenery.** Its machines, conveyor and racking are not
+  simulated and do not move; only the cell's stack light and operator panel
+  follow the simulation's state. The red button on that panel is part of the
+  scenery, not a control.
 - A path-traced snapshot holds the simulation while it renders: about two
   minutes the first time (the renderer compiles), seconds after that.
 - One robot embodiment per scene, as in RoboSimStudio; the two-armed YAM cells
@@ -117,12 +145,15 @@ itself).
 uv run python scripts/testrun.py --tier fast                 # no GPU
 uv run --extra gap python scripts/testrun.py --tier medium   # builds and steps scenes on the GPU
 uv run --group media python -m unittest tests.test_bridge_journey   # the 18-step journey in Edge or Chrome
+uv run --group media python -m unittest tests.test_bridge_simple    # Simple mode, the tour, a taught program
 cd frontend && npm test                                      # the client's frame decoder and dictionaries
 ```
 
 BRIDGE's own tests are `tests/test_bridge_fast.py` (no GPU),
-`tests/test_bridge_host.py` (the service on a real scene) and
-`tests/test_bridge_journey.py` (a browser against a running service). On Windows,
+`tests/test_bridge_host.py` (the service on a real scene),
+`tests/test_bridge_journey.py` (the engineering panels in a browser) and
+`tests/test_bridge_simple.py` (Simple mode, the tour and a taught program in a
+browser). On Windows,
 88 of the upstream fast-tier tests fail the same way on an unmodified upstream
 checkout: they assume POSIX path separators, a UTF-8 default encoding, or Unix
 sockets and process groups.
@@ -139,6 +170,9 @@ BRIDGE's additions (`bridge_studio/`, `frontend/`, `docs/bridge/`,
 `scripts/bridge.ps1`) are released under the [Apache License 2.0](LICENSE), as
 RoboSimStudio is. Third-party robot models keep their own licences, listed in
 [`NOTICE`](NOTICE); the page lists them too, under About, Open-source licences.
+The factory's HDRI, scanned textures and props are from
+[Poly Haven](https://polyhaven.com) under CC0, listed with what was done to each
+in [`frontend/public/factory/ASSETS.md`](frontend/public/factory/ASSETS.md).
 
 ---
 
