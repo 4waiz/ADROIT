@@ -63,7 +63,7 @@ namespace Bridge.App
             scaler.matchWidthOrHeight = 0.5f;
             band = Panel(go.transform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -64), new Vector2(0, 0), new Color(0.05f, 0.06f, 0.08f, 0.72f));
             title = Label(go.transform, "", 22, new Vector2(0, 1), new Vector2(24, -14), new Vector2(1100, 40), TextAlignmentOptions.TopLeft, "Figtree-Bold");
-            title.text = "<color=#FF4713>BRIDGE</color>'s Next-Gen Factory Digital Twin Simulation for Robotics  <size=70%><color=#9AA3AD>by Awaiz Ahmed</color></size>";
+            LogoBeforeText(title, "'s Next-Gen Factory Digital Twin Simulation for Robotics  <size=70%><color=#9AA3AD>by Awaiz Ahmed</color></size>");
             status = Label(go.transform, "", 17, new Vector2(1, 1), new Vector2(-24, -18), new Vector2(560, 40), TextAlignmentOptions.TopRight, "Figtree-SemiBold");
             Panel(go.transform, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 0), new Vector2(0, 96), new Color(0.05f, 0.06f, 0.08f, 0.72f));
             lesson = Label(go.transform, "", 18, new Vector2(0, 0), new Vector2(24, 82), new Vector2(1100, 80), TextAlignmentOptions.TopLeft, "Figtree-Medium");
@@ -82,6 +82,37 @@ namespace Bridge.App
             rt.offsetMin = offsetMin;
             rt.offsetMax = offsetMax;
             return img;
+        }
+
+        // The white logo's own proportions (wordmark_white.png, 1154 x 272 px): its letters fill rows 82 to 271
+        // and stand on the bottom edge, ending at column 1065; the orange bar rides above the E.
+        const float LogoAspect = 1154f / 272f, LogoLetters = 190f / 272f, LogoInk = 1065f / 1154f;
+
+        /// <summary>
+        /// Puts the white BRIDGE logo where a line's first word would be: its letters as tall as the
+        /// text's capitals and on the same baseline, and <paramref name="rest"/> after it.
+        /// </summary>
+        static void LogoBeforeText(TextMeshProUGUI text, string rest)
+        {
+            text.text = rest;
+            text.ForceMeshUpdate(true);
+            var line = text.textInfo.lineInfo[0];
+            var face = text.font.faceInfo;
+            float capOfAscent = face.capLine > 0 && face.ascentLine > 0 ? face.capLine / face.ascentLine : 0.72f;
+            float h = (line.ascender - line.baseline) * capOfAscent / LogoLetters, w = h * LogoAspect;
+            var go = new GameObject("logo", typeof(RectTransform), typeof(RawImage));
+            go.transform.SetParent(text.transform, false);
+            var img = go.GetComponent<RawImage>();
+            img.texture = Gen.Tex("wordmark_white");
+            img.raycastTarget = false;
+            var rt = img.rectTransform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = Vector2.zero;
+            rt.sizeDelta = new Vector2(w, h);
+            rt.localPosition = new Vector3(text.rectTransform.rect.xMin, line.baseline, 0);
+            // <space> counts in ems of the font size for screen text; a little air before the apostrophe.
+            string gap = (w * LogoInk / text.fontSize + 0.06f).ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+            text.text = $"<space={gap}em>{rest}";
         }
 
         TextMeshProUGUI Label(Transform parent, string text, float size, Vector2 anchor, Vector2 pos, Vector2 box, TextAlignmentOptions align, string font)

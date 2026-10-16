@@ -448,6 +448,9 @@ namespace Bridge.EditorTools
     /// <summary>Import settings for what the exporter writes under Assets/BridgeGen.</summary>
     public class BridgeImport : AssetPostprocessor
     {
+        // Raised whenever the settings below change, so Unity imports the textures again.
+        public override uint GetVersion() => 2;
+
         void OnPreprocessTexture()
         {
             if (!assetPath.StartsWith("Assets/BridgeGen/")) return;
@@ -473,6 +476,9 @@ namespace Bridge.EditorTools
             }
             if (assetPath.Contains("/UI/"))
             {
+                // Kept at their own size: rounding to a power of two would squash the icon atlas
+                // (2048 x 1280) and the logo (778 x 184), whose quads are sized from their shapes.
+                ti.npotScale = TextureImporterNPOTScale.None;
                 ti.textureType = TextureImporterType.Default;
                 ti.mipmapFilter = TextureImporterMipFilter.KaiserFilter;
                 ti.anisoLevel = 4;
