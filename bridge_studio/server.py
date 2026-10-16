@@ -100,6 +100,9 @@ def create_app(config: BridgeConfig | None = None, host: SimHost | None = None) 
     registry = builtin_registry()
     host = host or SimHost(config, registry)
     started_at = time.time()
+    # Generations count from 1 again each time the service starts, and the assets may have
+    # changed in between: this run's mark goes into the geometry's ETag with the generation.
+    run = f"{int(started_at * 1000):x}"
 
     @contextlib.asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -200,10 +203,15 @@ def create_app(config: BridgeConfig | None = None, host: SimHost | None = None) 
         generation, blob = host.geometry()
         if gen is not None and gen != generation:
             raise HTTPException(409, f"geometry is at generation {generation}, not {gen}")
-        headers = {"X-Bridge-Generation": str(generation), **_cache(86400 if gen is not None else 0)}
+        # Kept, but asked about again each time (no-cache): a blob cached by an earlier run, whose
+        # gen=1 named other meshes, is never taken for this run's; an unchanged one costs a 304.
+        tag = f'W/"{run}-{generation}"'
+        headers = {"X-Bridge-Generation": str(generation), "ETag": tag, **_cache(0)}
+        if tag in (t.strip() for t in request.headers.get("if-none-match", "").split(",")):
+            return Response(status_code=304, headers=headers)
         if "gzip" in request.headers.get("accept-encoding", "") and len(blob) > 1024:
             return Response(
-                _gzipped(generation, blob),
+                _gzipped(tag, blob),
                 media_type="application/octet-stream",
                 headers={**headers, "Content-Encoding": "gzip"},
             )
@@ -565,14 +573,14 @@ def create_app(config: BridgeConfig | None = None, host: SimHost | None = None) 
     return app
 
 
-_GZIP_CACHE: dict[int, bytes] = {}
+_GZIP_CACHE: dict[str, bytes] = {}
 
 
-def _gzipped(generation: int, blob: bytes) -> bytes:
-    if generation not in _GZIP_CACHE:
+def _gzipped(tag: str, blob: bytes) -> bytes:
+    if tag not in _GZIP_CACHE:
         _GZIP_CACHE.clear()
-        _GZIP_CACHE[generation] = gzip.compress(blob, compresslevel=5)
-    return _GZIP_CACHE[generation]
+        _GZIP_CACHE[tag] = gzip.compress(blob, compresslevel=5)
+    return _GZIP_CACHE[tag]
 
 
 def _cache(seconds: int) -> dict[str, str]:

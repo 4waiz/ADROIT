@@ -37,7 +37,9 @@ export async function sendJson<T>(path: string, method: "POST" | "PUT" | "DELETE
 }
 
 export async function getBinary(path: string): Promise<ArrayBuffer> {
-  const response = await fetch(path);
+  // Always checked with the service: the geometry's gen=1 after a restart can name other meshes
+  // than a copy this browser kept from before it (a 304 when it is the same).
+  const response = await fetch(path, { cache: "no-cache" });
   if (!response.ok) throw new ApiError(response.status, await readError(response));
   return await response.arrayBuffer();
 }
