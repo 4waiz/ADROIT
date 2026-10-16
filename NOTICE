@@ -1,3 +1,19 @@
+The BRIDGE's Next-Generation Industry 5.0 Robotic Arm Digital Twin Simulation
+Copyright (c) 2026 Awaiz Ahmed. All rights reserved.
+
+BRIDGE's own files (every file headed SPDX-License-Identifier: LicenseRef-BRIDGE,
+and the untagged files in bridge_studio/, frontend/ and docs/bridge/ outside
+frontend/public/) are under the BRIDGE License, in LICENSE-BRIDGE.
+
+BRIDGE builds on RoboSimStudio, whose notice follows. RoboSimStudio, and every
+file headed SPDX-License-Identifier: Apache-2.0, stays under the Apache License,
+Version 2.0 (LICENSE); nothing in this BRIDGE notice changes those terms.
+
+BRIDGE changed these RoboSimStudio files, as recorded in the git history:
+.gitignore, CITATION.cff, NOTICE, README.md, pyproject.toml and uv.lock.
+
+--------------------------------------------------------------------------------
+
 RoboSimStudio
 Copyright 2026 Kaiyuan Chen
 

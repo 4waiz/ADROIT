@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """The simulation host: one thread that owns the scene, and everything that talks to it.
 
 Warp has one writer. Every build, every step, every IK solve and every read of

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """One arm driven from the browser: the studio's arm panel, without viser, plus joint mode.
 
 :class:`ArmDriver` is :class:`~robosimstudio_studio.panels.PanelArm` re-stated for

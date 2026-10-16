@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // Simple mode's control panel: the scene in a sentence, the robot moved with arrows and its hand
 // opened and closed, programs run with one button or taught by showing the robot where to go,
 // and what is happening in plain words. Every button sends the same validated commands the

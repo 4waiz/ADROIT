@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The client's frame decoder against frames packed exactly as bridge_studio/frames.py packs them.
 
 import { describe, expect, it } from "vitest";

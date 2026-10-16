@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // Data that changes every frame lives outside React: the viewport reads it on its own clock,
 // and panels sample it through the throttled `telemetry` slice of the store.
 

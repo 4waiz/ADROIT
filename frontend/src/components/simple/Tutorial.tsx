@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The guided tour: a dimmed screen with one control lit at a time and a card that says what it
 // does, in plain words. It opens by itself the first time, and from the graduation-cap button
 // after that. Clicks pass through the lit control, so each step can be tried as it is read.

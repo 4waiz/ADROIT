@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // Where commands go, and why that is the simulation. The hardware connector is an interface
 // with no device behind it in this build; its interlocks are listed as what they are: not met.
 

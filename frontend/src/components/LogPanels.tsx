@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The record of the session: the host's event log, every command with who sent it and how it
 // ended, and a timeline that places both on simulated time.
 

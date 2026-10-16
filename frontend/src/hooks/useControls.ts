@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // Keyboard and gamepad. Keys never act while you are typing in a field. The gamepad moves the
 // selected arm's target through the same cursor channel the gizmo uses, so the host's IK and
 // rate limits apply exactly as they do to a mouse drag.

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // Driving one arm: its real joints (names, limits, measured and commanded values), the gripper
 // (command against measured closure), the tool centre (measured pose, a typed target with an
 // off-line reachability verdict) and jogging. Every control sends a validated command to the

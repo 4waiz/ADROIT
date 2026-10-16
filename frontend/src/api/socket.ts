@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // One WebSocket to the service: frames and messages in, commands and cursor samples out.
 //
 // Commands are never queued for later and never re-sent: a command issued while the socket is

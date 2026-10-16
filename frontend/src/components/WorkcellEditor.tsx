@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The workcell builder. You edit a document (bridge.workcell/1); Build sends it to the host,
 // which validates it, compiles it with the public constructors and swaps it in. The library only
 // offers what the chosen physics preset can simulate, and says why the rest is unavailable.

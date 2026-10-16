@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // Drag-to-resize for panels. `sign` is +1 when the size grows as the pointer moves right (or
 // down), -1 when it grows as the pointer moves left (or up). Mirrored for right-to-left layouts.
 

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // BRIDGE | Digital Twin Studio: the command centre layout.
 
 import { useEffect } from "react";

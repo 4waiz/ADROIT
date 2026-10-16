@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The machine and the service, checked: Python, GPU, solvers, renderer, client build, the
 // browser's WebGL device, the socket, and what the viewport is spending per frame.
 

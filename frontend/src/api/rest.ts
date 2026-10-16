@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // REST helpers. Same origin: the service serves the page, and the dev server proxies /api.
 
 export class ApiError extends Error {

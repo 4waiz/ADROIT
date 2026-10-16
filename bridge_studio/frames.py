@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """The binary frame the host streams: a JSON header and float32 buffers behind it.
 
 One frame per publish, never a backlog: a client that falls behind gets the

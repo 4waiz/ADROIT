@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """BRIDGE's service, checked without a GPU: the wire formats, the document rules, the contracts.
 
 * The frame format round-trips and never carries a NaN as JSON.
@@ -375,8 +375,11 @@ class TestRest(unittest.TestCase):
                 ack = client.post("/api/command", json={"name": "sim.play"}).json()
                 self.assertEqual(ack["status"], "rejected")
                 licences = client.get("/api/licenses").json()
+                self.assertIn("BRIDGE License", licences["bridgeLicense"])
+                self.assertIn("Awaiz Ahmed", licences["bridgeLicense"])
                 self.assertIn("Apache License", licences["license"])
                 self.assertIn("RoboSimStudio", licences["notice"])
+                self.assertIn("Copyright 2026 Kaiyuan Chen", licences["notice"])
 
 
 if __name__ == "__main__":

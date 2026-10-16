@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """A workcell as a document: what the builder edits, what Save writes, what Load rebuilds.
 
 ``bridge.workcell/1`` is a JSON document naming a cell, a physics preset, a robot

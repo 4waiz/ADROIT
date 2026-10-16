@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The shapes the BRIDGE service sends. Mirrors bridge_studio/manifest.py, host.py and frames.py.
 
 export type Vec3 = [number, number, number];

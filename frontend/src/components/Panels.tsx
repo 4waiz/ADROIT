@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The two side panels: the scene and its builder on the left, the inspector on the right. Both
 // resize by their inner edge and collapse to a rail.
 

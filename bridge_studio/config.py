@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """What one BRIDGE service is told when it starts."""
 
 from __future__ import annotations

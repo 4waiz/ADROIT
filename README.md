@@ -169,10 +169,17 @@ sockets and process groups.
 
 ## Licence and credits
 
-BRIDGE's additions (`bridge_studio/`, `frontend/`, `docs/bridge/`,
-`scripts/bridge.ps1`) are released under the [Apache License 2.0](LICENSE), as
-RoboSimStudio is. Third-party robot models keep their own licences, listed in
-[`NOTICE`](NOTICE); the page lists them too, under About, Open-source licences.
+BRIDGE's own code is Copyright © 2026 Awaiz Ahmed, under the
+[BRIDGE License](LICENSE-BRIDGE): every file headed
+`SPDX-License-Identifier: LicenseRef-BRIDGE`, and the untagged files in
+`bridge_studio/`, `frontend/` and `docs/bridge/` outside `frontend/public/`. You
+may read it and run it to evaluate it; anything more needs written permission.
+Versions published before the BRIDGE License stay available under Apache 2.0.
+
+RoboSimStudio, and every file headed `SPDX-License-Identifier: Apache-2.0`, stays
+under the [Apache License 2.0](LICENSE), with its notices in [`NOTICE`](NOTICE).
+Third-party robot models keep their own licences, listed in `NOTICE`; the page
+lists them too, under About, Open-source licences.
 The factory's HDRI, scanned textures and props are from
 [Poly Haven](https://polyhaven.com) under CC0, listed with what was done to each
 in [`frontend/public/factory/ASSETS.md`](frontend/public/factory/ASSETS.md).

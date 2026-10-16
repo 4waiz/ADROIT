@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // What can be launched: the scenario gallery (built-in, each with its physics, robot, success
 // measure and availability on this machine), saved workcells, and what was opened recently.
 

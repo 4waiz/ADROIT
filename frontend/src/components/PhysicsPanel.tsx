@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // How the scene is simulated, read from the compiled program, and the one parameter the running
 // solvers accept live (gravity). Everything else that shapes the physics is fixed at build time
 // and is marked so: changing it means rebuilding the workcell, which the editor does.

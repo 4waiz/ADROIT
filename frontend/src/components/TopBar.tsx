@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The command bar: brand, where you are, what is true right now, and the global actions.
 // Every chip reads real state: the sim chip the host's phase, the backend chip the compiled
 // islands, the link chip the socket and its measured round trip.

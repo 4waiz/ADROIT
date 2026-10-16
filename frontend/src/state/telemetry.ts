@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // Ring buffers of what the simulator reported, for the plots. Every sample is a value the
 // frame carried; nothing is interpolated or synthesised. A frame without a value (an effort
 // the solver does not expose) records NaN, which the plots draw as a gap.

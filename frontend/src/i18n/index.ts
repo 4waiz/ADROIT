@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // Two languages, one key set. `npm test` (src/i18n/i18n.test.ts) and tests/test_bridge_fast.py fail if
 // Arabic lacks a key English has, or the reverse, or a placeholder differs.
 // What the simulator itself says (event messages, solver summaries, scenario sources) stays in

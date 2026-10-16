@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // About (with the open-source licences this product is built on), settings, and the keyboard map.
 
 import { ExternalLink } from "lucide-react";
@@ -23,6 +23,7 @@ export function Attribution() {
 }
 
 interface Licences {
+  bridgeLicense: string;
   license: string;
   notice: string;
   citation: string;
@@ -84,7 +85,9 @@ export function AboutDialog() {
             <p className="muted">{t("common.loading")}</p>
           ) : (
             <>
-              <h3>LICENSE (Apache-2.0)</h3>
+              <h3>{t("about.bridgeLicence")}</h3>
+              <pre className="license">{licences.bridgeLicense}</pre>
+              <h3>{t("about.robosimLicence")}</h3>
               <pre className="license">{licences.license}</pre>
               <h3>NOTICE</h3>
               <pre className="license">{licences.notice}</pre>

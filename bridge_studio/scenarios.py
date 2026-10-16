@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """The scenario gallery: what BRIDGE can build, and what each one can do once built.
 
 A :class:`Scenario` is a description and a builder. The builder returns a

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // العربية. يجب أن يطابق كل مفتاح هنا مفاتيح en.ts (يتحقق من ذلك `npm test`).
 // أسماء الأشخاص والمنتجات تبقى بالحروف اللاتينية؛ الأرقام والوحدات الهندسية تبقى كما هي.
 
@@ -646,7 +646,9 @@ export const ar: Record<keyof typeof en, string> = {
   "about.foundation": "بُني BRIDGE على RoboSimStudio، وهي مجموعة أدوات مفتوحة المصدر (Apache-2.0)، وتعتمد بدورها على Newton وWarp وMuJoCo Warp وPyRoKi وSuperDex وviser. حُفظت إشعارات حقوق النشر والتراخيص الخاصة بهم؛ راجع تراخيص المصادر المفتوحة.",
   "about.endorsement": "اللغة البصرية مستوحاة من تصميم قطاع التقنيات المتقدمة. لا يرتبط BRIDGE بمجموعة EDGE ولا يحظى بتأييدها.",
   "about.machineTitle": "هذا الجهاز",
-  "about.licencesIntro": "يعيد BRIDGE توزيع برمجيات مفتوحة المصدر ويبني عليها. التراخيص والإشعارات أدناه منقولة من شجرة المصدر هذه.",
+  "about.licencesIntro": "حقوق النشر لشيفرة BRIDGE الخاصة © 2026 Awaiz Ahmed، وهي مرخّصة بموجب ترخيص BRIDGE. ويعتمد BRIDGE على برمجيات مفتوحة المصدر ترد أدناه تراخيصها وإشعاراتها كما هي في شجرة المصدر هذه.",
+  "about.bridgeLicence": "ترخيص BRIDGE",
+  "about.robosimLicence": "ترخيص RoboSimStudio (Apache-2.0)",
   "about.thirdParty": "تراخيص نماذج الروبوتات",
   "about.clientLibraries": "مكتبات الواجهة",
   "about.citation": "الاستشهاد",

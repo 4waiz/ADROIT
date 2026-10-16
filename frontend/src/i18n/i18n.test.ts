@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The two dictionaries carry the same keys and the same placeholders, and translate() fills them.
 
 import { describe, expect, it } from "vitest";

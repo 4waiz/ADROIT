@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // Real to sim: import a clip or a photo, cut stills at the moments that matter, and hold the
 // scene against a still through the viewport's own camera. The measurement is the real2sim
 // agent's (colour-keyed masks against segmentation): size, offset and overlap per keyed thing.

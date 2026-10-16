@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """Every command the host takes: what it does, what it reads, what it answers.
 
 The contract an operator's page and an external agent share. ``GET

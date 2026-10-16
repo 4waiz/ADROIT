@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """The web service: REST for what a page or an agent asks once, a WebSocket for what streams.
 
 Every route is a thin door onto :class:`~bridge_studio.host.SimHost`. Nothing here

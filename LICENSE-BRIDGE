@@ -1,0 +1,53 @@
+BRIDGE License
+
+The BRIDGE's Next-Generation Industry 5.0 Robotic Arm Digital Twin Simulation
+Copyright (c) 2026 Awaiz Ahmed. All rights reserved.
+
+
+1. What this licence covers
+
+This licence covers BRIDGE's own files in this repository ("BRIDGE"):
+
+  - every file whose header reads SPDX-License-Identifier: LicenseRef-BRIDGE;
+  - the files in bridge_studio/, frontend/ and docs/bridge/ that carry no SPDX
+    header, except those in frontend/public/.
+
+It does not cover:
+
+  - RoboSimStudio, the toolkit BRIDGE builds on, or any file whose header names
+    another licence (such as SPDX-License-Identifier: Apache-2.0). Those stay
+    under the Apache License, Version 2.0, in LICENSE, with their notices in
+    NOTICE;
+  - the third-party robot models listed in NOTICE, each under its own licence;
+  - frontend/public/: the page's icons, and the factory's third-party assets
+    listed in frontend/public/factory/ASSETS.md (CC0 1.0);
+  - the wordmark images light.png and dark.png.
+
+
+2. What you may do
+
+You may read BRIDGE's source and run BRIDGE on your own computer to evaluate it.
+Nothing in this licence limits what GitHub's Terms of Service let other GitHub
+users do with a public repository, such as viewing and forking it on GitHub.
+
+
+3. What needs permission
+
+You may not copy, modify, merge, publish, distribute, sublicense or sell BRIDGE
+or any part of it, or use it in a product or service, without written permission
+from Awaiz Ahmed.
+
+
+4. No warranty
+
+BRIDGE is provided "as is", without warranty of any kind, express or implied,
+including the warranties of merchantability, fitness for a particular purpose
+and non-infringement. In no event shall the copyright holder be liable for any
+claim, damages or other liability, whether in an action of contract, tort or
+otherwise, arising from, out of or in connection with BRIDGE or its use.
+
+
+5. Earlier versions
+
+Versions of BRIDGE published before this licence was added were released under
+the Apache License, Version 2.0, and remain available under its terms.

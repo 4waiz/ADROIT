@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The engineering dock under the viewport: telemetry, timeline, events, commands, mission
 // control, the real-to-sim reference workspace and diagnostics. Resizable and collapsible.
 

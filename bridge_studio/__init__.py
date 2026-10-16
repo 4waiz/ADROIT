@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """BRIDGE | Digital Twin Studio: a browser command centre over the simulation stack.
 
 The service half. One process holds one built scene on one thread (the *host*)

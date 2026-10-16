@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """``python -m bridge_studio``: serve BRIDGE, or check what this machine can run.
 
 ::

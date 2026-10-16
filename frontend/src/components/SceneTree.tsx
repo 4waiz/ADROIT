@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The workcell as a hierarchy: robot arms (with their joints, tool centre and gripper),
 // objects, deformables, fixtures, goal regions, cameras and the stage lights. Every row is
 // a real entry of the compiled scene, except the lights, which are the viewport's own.

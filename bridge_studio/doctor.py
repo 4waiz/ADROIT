@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """What this machine can run, checked rather than assumed.
 
 ``python -m bridge_studio doctor`` prints the checks; ``GET /api/doctor`` serves
@@ -186,6 +186,7 @@ def license_texts() -> dict[str, Any]:
             }
         )
     return {
+        "bridgeLicense": read("LICENSE-BRIDGE"),
         "license": read("LICENSE"),
         "notice": read("NOTICE"),
         "citation": read("CITATION.cff"),

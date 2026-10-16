@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """A built scene as data a browser can draw: the manifest and its geometry blob.
 
 The client never sees Newton. After every build the host walks the compiled

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The binary frame (bridge_studio/frames.py): "BRF1", uint32 header length, JSON header, float32 buffers.
 
 import type { Frame, FrameHeader } from "./types";

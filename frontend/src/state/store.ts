@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The page's reactive state. Frame-rate data stays in `live` and `telemetry`; this holds what
 // panels render: connection, status, the manifest, selection, logs, preferences, dialogs.
 

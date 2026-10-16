@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The contextual inspector: whatever is selected, with what the simulator knows about it.
 // An arm gets the control panel; an object its live pose, velocity and physical properties;
 // a camera its spec and a path-traced view through it; nothing selected, the workcell itself.

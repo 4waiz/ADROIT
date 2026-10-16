@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // Non-blocking notices: command outcomes, build results, goal reached.
 
 import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "lucide-react";

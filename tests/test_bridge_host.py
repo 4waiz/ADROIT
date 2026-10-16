@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """BRIDGE's host on a real scene: what each command does to the simulation, and what it refuses.
 
 One host, the Panda pick-and-place cell, driven through ``SimHost.execute``

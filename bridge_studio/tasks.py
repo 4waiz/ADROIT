@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """Mission sequences: a list of steps the operator builds, run as a routine.
 
 A task is data -- ``[{"op": "move", "arm": "right", "target": {...}}, ...]`` --

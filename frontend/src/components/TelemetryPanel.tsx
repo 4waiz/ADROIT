@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // Live plots of what the simulator reported: joint positions, velocities and actuator efforts,
 // the tool centre, the gripper, contacts and the step rate, plus the browser's own frame rate.
 // A plot that has no source says so; it never draws a stand-in.

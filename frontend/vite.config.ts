@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // BRIDGE client build. `npm run build` writes the page into bridge_studio/static,
 // which the Python service serves. `npm run dev` proxies the API and the socket
 // to a service started with `python -m bridge_studio --dev` on port 8800.

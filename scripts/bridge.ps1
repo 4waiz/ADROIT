@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 # BRIDGE | Digital Twin Studio -- start it on Windows.
 #
 #   powershell -ExecutionPolicy Bypass -File scripts\bridge.ps1            # serve on http://127.0.0.1:8800

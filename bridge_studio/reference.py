@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """Reference media for real-to-sim: a clip or a photo, its stills, and the scene held against them.
 
 Everything that measures here is the repository's real-to-sim agent's own code,

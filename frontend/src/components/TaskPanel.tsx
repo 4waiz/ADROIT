@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // Mission control: the scenario's own routines, and sequences you build step by step. A sequence
 // runs on the host as a task -- each step a real motion of the arm's target, a real grip, a real
 // wait -- and each step reports done, or failed with the reason (a hand that stopped short).

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // Small controls shared by every panel: icon buttons with tooltips, popover menus, dialogs,
 // segmented switches, toggles and the numeric field that commits on Enter.
 

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The centre of the page: the 3D workcell, its camera and overlay tools, the transport, and the
 // readouts that say how fast the browser draws and how fast the simulator steps (both measured).
 

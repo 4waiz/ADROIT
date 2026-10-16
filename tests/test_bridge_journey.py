@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """BRIDGE's acceptance journey, in a real browser against a real simulation.
 
 Starts ``python -m bridge_studio`` on a spare port, opens the page in a headless

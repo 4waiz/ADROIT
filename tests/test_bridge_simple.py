@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-BRIDGE
 """BRIDGE's Simple mode, in a real browser against a real simulation.
 
 A first-time visitor, as the page is shipped: the guided tour opens by itself and

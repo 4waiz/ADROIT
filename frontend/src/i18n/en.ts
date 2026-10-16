@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // English. Every key here must exist in ar.ts (checked by `npm test`).
 
 export const en = {
@@ -643,7 +643,9 @@ export const en = {
   "about.foundation": "BRIDGE is built on RoboSimStudio, an open toolkit (Apache-2.0), which builds on Newton, Warp, MuJoCo Warp, PyRoKi, SuperDex and viser. Their copyright notices and licences are preserved; see Open-source licences.",
   "about.endorsement": "Visual language inspired by advanced-technology industry design. BRIDGE is not affiliated with or endorsed by EDGE Group.",
   "about.machineTitle": "This machine",
-  "about.licencesIntro": "BRIDGE redistributes and builds on open-source software. The licences and notices below are reproduced from this source tree.",
+  "about.licencesIntro": "BRIDGE's own code is Copyright © 2026 Awaiz Ahmed, under the BRIDGE License. It builds on open-source software, whose licences and notices follow as they appear in this source tree.",
+  "about.bridgeLicence": "BRIDGE License",
+  "about.robosimLicence": "RoboSimStudio licence (Apache-2.0)",
   "about.thirdParty": "Robot model licences",
   "about.clientLibraries": "Client libraries",
   "about.citation": "Citation",
