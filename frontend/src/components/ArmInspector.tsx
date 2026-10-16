@@ -110,11 +110,11 @@ function JointRow({
           />
         </div>
         <div className="jlim">
-          <span>{fmt(lo * scale, angular ? 0 : 0)}</span>
+          <span className="num">{fmt(lo * scale, 0)}</span>
           <span>
-            {t("arm.measuredShort")} {measured !== undefined ? fmt(measured * scale, 1) : "—"} {unit}
+            {t("arm.measuredShort")} <span className="num">{measured !== undefined ? fmt(measured * scale, 1) : "—"} {unit}</span>
           </span>
-          <span>{fmt(hi * scale, angular ? 0 : 0)}</span>
+          <span className="num">{fmt(hi * scale, 0)}</span>
         </div>
       </div>
       <div className="jval">

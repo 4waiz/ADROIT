@@ -96,7 +96,7 @@ function Plot({ spec, seconds, frozen, theme }: { spec: PlotSpec; seconds: numbe
           </span>
         ))}
       </div>
-      <div className="plot-body" ref={host}>
+      <div className="plot-body" ref={host} dir="ltr">
         {empty && <div className="empty" style={{ position: "absolute", inset: 0 }}>{spec.note ?? "—"}</div>}
       </div>
     </div>
