@@ -220,16 +220,8 @@ Thanks to their authors.
 
 ## Citation
 
-```bibtex
-@misc{robosimstudio2026,
-  title         = {RoboSimStudio: An Interactive Toolkit for Rapid Real2Sim of Robot Manipulation Tasks},
-  author        = {Chen, Kaiyuan and Xie, Shuangyu and Yoo, Uksang and Zhu, Xinyue and Magner, Cael and Zhu, Alvin and Kim, Daehwa and Heiden, Eric and Coumans, Erwin and Macklin, Miles and Huang, Spencer and Goldberg, Ken},
-  year          = {2026},
-  eprint        = {2610.18835},
-  archivePrefix = {arXiv},
-  url           = {https://arxiv.org/abs/2610.18835},
-}
-```
+RoboSimStudio's tech report is on [arXiv](https://arxiv.org/abs/2610.18835); its
+full citation is in [`CITATION.cff`](CITATION.cff), under `references`.
 
 ## License
 

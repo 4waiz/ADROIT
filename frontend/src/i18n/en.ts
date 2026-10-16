@@ -640,7 +640,7 @@ export const en = {
   "about.builtByLink": "Built by Awaiz Ahmed (opens kanbanstudios.ae in a new tab)",
   "about.builtByNote": "The BRIDGE interface, service layer and product experience.",
   "about.foundationTitle": "Foundation",
-  "about.foundation": "BRIDGE is built on RoboSimStudio, an open toolkit (Apache-2.0) by Kaiyuan Chen and co-authors, which builds on Newton, Warp, MuJoCo Warp, PyRoKi, SuperDex and viser. Their copyright notices and licences are preserved; see Open-source licences.",
+  "about.foundation": "BRIDGE is built on RoboSimStudio, an open toolkit (Apache-2.0), which builds on Newton, Warp, MuJoCo Warp, PyRoKi, SuperDex and viser. Their copyright notices and licences are preserved; see Open-source licences.",
   "about.endorsement": "Visual language inspired by advanced-technology industry design. BRIDGE is not affiliated with or endorsed by EDGE Group.",
   "about.machineTitle": "This machine",
   "about.licencesIntro": "BRIDGE redistributes and builds on open-source software. The licences and notices below are reproduced from this source tree.",

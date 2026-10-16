@@ -643,7 +643,7 @@ export const ar: Record<keyof typeof en, string> = {
   "about.builtByLink": "من تطوير Awaiz Ahmed (يفتح kanbanstudios.ae في علامة تبويب جديدة)",
   "about.builtByNote": "واجهة BRIDGE وطبقة الخدمة وتجربة المنتج.",
   "about.foundationTitle": "الأساس",
-  "about.foundation": "بُني BRIDGE على RoboSimStudio، وهي مجموعة أدوات مفتوحة المصدر (Apache-2.0) من تأليف Kaiyuan Chen ومشاركيه، وتعتمد بدورها على Newton وWarp وMuJoCo Warp وPyRoKi وSuperDex وviser. حُفظت إشعارات حقوق النشر والتراخيص الخاصة بهم؛ راجع تراخيص المصادر المفتوحة.",
+  "about.foundation": "بُني BRIDGE على RoboSimStudio، وهي مجموعة أدوات مفتوحة المصدر (Apache-2.0)، وتعتمد بدورها على Newton وWarp وMuJoCo Warp وPyRoKi وSuperDex وviser. حُفظت إشعارات حقوق النشر والتراخيص الخاصة بهم؛ راجع تراخيص المصادر المفتوحة.",
   "about.endorsement": "اللغة البصرية مستوحاة من تصميم قطاع التقنيات المتقدمة. لا يرتبط BRIDGE بمجموعة EDGE ولا يحظى بتأييدها.",
   "about.machineTitle": "هذا الجهاز",
   "about.licencesIntro": "يعيد BRIDGE توزيع برمجيات مفتوحة المصدر ويبني عليها. التراخيص والإشعارات أدناه منقولة من شجرة المصدر هذه.",
