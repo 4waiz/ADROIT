@@ -66,6 +66,15 @@ browser (React + TypeScript + three.js)                 python (one process)
   efforts from MuJoCo's actuator forces where the solver exposes them, contacts
   from `ContactProbe`. A value the backend cannot produce is reported as
   unavailable, never synthesised. Every stream is labelled `Simulated`.
+  The per-step physics time includes waiting for the device to finish the step
+  and copy its result back, so a GPU-bound scene reads as such instead of
+  showing only the time it took to launch the step.
+* **Goals.** A scenario's success measure is read twice a second. The first time
+  it reads done since the last build or reset is kept, with the simulated time,
+  so a goal met in passing (a lift held, then set down) is reported as met.
+* **Shutdown.** Ctrl+C stops the host loop, which closes the scene on its own
+  thread; the process then exits directly, because a co-simulated native engine
+  can leave a thread the interpreter would otherwise wait on forever.
 * **Scenes as data.** User workcells are versioned JSON documents
   (`bridge.workcell/1`) mapped onto the public constructors through a whitelist
   (`rss.box`, `rss.sphere`, `rss.cylinder`, `rss.capsule`, `rss.slab`,

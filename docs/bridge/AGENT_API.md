@@ -21,7 +21,7 @@ in the cell's **work-surface frame** (the origin is the middle of the bench top)
 | --- | --- |
 | `GET /api/health` | Up, and the host's phase. |
 | `GET /api/info` | Product, version, machine (OS, Python, GPU, Warp, renderer), command target. |
-| `GET /api/status` | Phase, scenario, generation, playing, speed, simulated time, measured step rate, running routine or task, success verdict, per-arm owner. |
+| `GET /api/status` | Phase, scenario, generation, playing, speed, simulated time, measured step rate, running routine or task, success verdict (`success`, read twice a second) and when it was first met since the last build or reset (`goalMet`: simulated time, step, detail), per-arm owner. |
 | `GET /api/scene/manifest` | Everything static about the built scene: bodies, shapes (kind, size, local pose, colour, finish, role, owner), meshes, arms (joints with names, limits, units, home), deformables, cameras, regions, the physics program. |
 | `GET /api/scene/geometry?gen=N` | Every mesh as one binary blob; offsets are in the manifest. |
 | `GET /api/scene/state` | The newest frame as JSON: time, step, rates, per-arm telemetry (joint q, qd, actuator effort, targets, tool-centre pose, cursor, gripper command/width/closure, reach verdict), contacts, body poses. |
@@ -97,7 +97,7 @@ faces). Each step reports `done` or `failed` with the reason in
 
 | Endpoint | What |
 | --- | --- |
-| `POST /api/render` | `{eye, lookAt, fovY, width, height}` or `{camera}` -> a PNG through the library's renderer (path traced where the GPU can; the `X-Bridge-Renderer` header says which). |
+| `POST /api/render` | `{eye, lookAt, fovY, width, height}` or `{camera}` -> a PNG through the library's renderer (path traced where the GPU can; the `X-Bridge-Renderer` header says which). The simulation holds while it renders: about two minutes for the first render (the renderer compiles), seconds after that. |
 | `PUT /api/reference/upload?name=clip.mp4` | Raw body. A clip or a photo for real-to-sim. |
 | `POST /api/reference/{id}/stills` | `{times: [s, ...]}` -> stills at those seconds. |
 | `POST /api/reference/{id}/compare` | `{still, view: {eye, lookAt, fovY}, keys: ["cube=orange"]}` -> per-thing size, offset and IoU, with overlay pictures. |
