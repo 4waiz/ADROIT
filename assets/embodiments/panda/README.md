@@ -53,21 +53,35 @@ resolve against this directory as they stand.
    of the 61 meshes are named.
 4. **Mesh paths flattened** by the dump into one `assets/` directory, where
    robosuite keeps one directory per link.
+5. **Link 5's lettering reads BRIDGE over Awaiz** where it read FRANKA EMIKA
+   (2026-10-16, for BRIDGE). Two visual meshes changed, nothing else:
+   `assets/link5_vis_1.obj`, the white lettering, is set again in Figtree (SIL
+   Open Font License 1.1) at the old lettering's start, baseline, cap heights
+   (7.04 and 3.80 mm), stroke weight (Figtree 700) and letter-spacing, on the
+   same curved surface; and `assets/link5_vis_0.obj`, the dark panel the letters
+   are cut through, has its face around them triangulated again: the old
+   letters' holes (and their 320 wall triangles) filled, the new letters cut
+   out, the face's outline kept on its own vertices so the seam with the rest
+   of the panel stays closed. The lettering sits inlaid 0.43 mm down, as before.
+   No collision mesh, body or material changed, so the physics is the same.
 
-The meshes themselves are robosuite's bytes. Checked against the `v1.4.0` tag on
-2026-10-04, all 61: the eleven STLs are byte-identical, and the fifty OBJs are
-identical apart from line endings (CRLF here, LF upstream). Their `mtllib` lines
+The meshes themselves are robosuite's bytes, but for the two in 5. Checked
+against the `v1.4.0` tag on 2026-10-04, all 61: the eleven STLs are
+byte-identical, and the fifty OBJs are identical apart from line endings (CRLF
+here, LF upstream). Their `mtllib` lines
 name `.mtl` files that neither the export nor this directory carries; the
 colours come from the MJCFs' own `<material>` elements.
 
 ## The copy the benchmark's collection keeps
 
-The two MJCFs and the 61 meshes are byte copies of files in the benchmark
-collection (`vabar/`, not in this repo), which keeps the originals beside its
-tool-sort export; its merged scene MJCFs name the same meshes at the same
-relative paths. `tests/test_panda_vendored.py` holds `assets/` to exactly the
-meshes named and, when the collection is present, fails while the copies
-differ from the originals.
+The two MJCFs and the 61 meshes (59 since the lettering in 5) are byte copies
+of files in the benchmark collection (`vabar/`, not in this repo), which keeps
+the originals beside its tool-sort export; its merged scene MJCFs name the same
+meshes at the same relative paths. `tests/test_panda_vendored.py` holds
+`assets/` to exactly the meshes named and, when the collection is present,
+fails while a copy differs from its original, the two re-lettered meshes
+excepted. The lettering touches visual meshes only, so the measurements below
+stand.
 
 **Measured across the copy** (2026-10-04): a `panda` and a `panda_robotiq`
 alone on `bench_075`, and a level-1 and a level-2 tool-sorting scene, built

@@ -10,7 +10,9 @@ file headed SPDX-License-Identifier: Apache-2.0, stays under the Apache License,
 Version 2.0 (LICENSE); nothing in this BRIDGE notice changes those terms.
 
 BRIDGE changed these RoboSimStudio files, as recorded in the git history:
-.gitignore, CITATION.cff, NOTICE, README.md, pyproject.toml and uv.lock.
+.gitignore, CITATION.cff, NOTICE, README.md, pyproject.toml, uv.lock,
+tests/test_panda_vendored.py, and in assets/embodiments/panda/ the README and
+link 5's two visual meshes, re-lettered BRIDGE over Awaiz (that README says how).
 
 --------------------------------------------------------------------------------
 

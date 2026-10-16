@@ -10,7 +10,7 @@ name are vendored under ``assets/embodiments/panda/`` now, as byte copies.
 A copy is a second place for a file to change, so this holds four things still:
 the specs point at the vendored files; every mesh they name is there; nothing
 else is (40 MB is enough); and while the collection's originals are on disk the
-copies are byte-identical to them.
+copies are byte-identical to them, but for link 5's two re-lettered meshes.
 
 Static: reads files, builds nothing.
 """
@@ -38,6 +38,9 @@ MJCFS = {
     "panda_robotiq_roll": "panda_nohand_standalone.xml",
 }
 """Which file each registered Panda imports."""
+
+RELETTERED = {"assets/link5_vis_0.obj", "assets/link5_vis_1.obj"}
+"""Link 5's panel and its lettering, changed on purpose to read BRIDGE over Awaiz (README.md, 5)."""
 
 
 def _meshes(mjcf: Path) -> set[str]:
@@ -80,7 +83,7 @@ class TestThePandaIsTheLibrarysOwn(unittest.TestCase):
 
     def test_exactly_the_named_meshes_are_vendored(self) -> None:
         named = set().union(*(_meshes(VENDORED / filename) for filename in set(MJCFS.values())))
-        shipped = {str(path.relative_to(VENDORED)) for path in (VENDORED / "assets").iterdir()}
+        shipped = {path.relative_to(VENDORED).as_posix() for path in (VENDORED / "assets").iterdir()}
         self.assertEqual(sorted(named), sorted(shipped), "a mesh is missing, or one nothing names came along")
         self.assertEqual(61, len(named))
 
@@ -100,6 +103,8 @@ class TestTheCopyHasNotDrifted(unittest.TestCase):
         files = [VENDORED / name for name in sorted(set(MJCFS.values()))]
         files += sorted((VENDORED / "assets").iterdir())
         for path in files:
+            if path.relative_to(VENDORED).as_posix() in RELETTERED:
+                continue
             with self.subTest(file=path.name):
                 original = COLLECTION / path.relative_to(VENDORED)
                 self.assertTrue(original.is_file(), f"{original} is gone; the copy has no source to be checked against")
