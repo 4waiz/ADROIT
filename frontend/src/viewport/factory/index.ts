@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The digital factory around the simulated cell: a lit hall, machines and racking, and the cell's
 // own guarding, cabinet and operator panel. Photographic assets (an industrial HDRI for light and
 // reflections, scanned floor and steel textures, props) come from Poly Haven under CC0; see

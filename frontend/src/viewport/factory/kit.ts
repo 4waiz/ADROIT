@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The factory's building blocks: its materials (painted steel in the colours real plant uses,
 // the epoxy floor, the cladding) and a batcher that merges hundreds of static parts into a few
 // draw calls, so a whole hall costs about what one machine would.

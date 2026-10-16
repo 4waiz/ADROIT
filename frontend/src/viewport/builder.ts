@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // Manifest + geometry blob -> three.js objects. One Group per simulated body, each shape a child
 // at its local transform; per frame only the body groups move. Geometry is what the simulator
 // holds: primitives from their parameters, meshes from the importer's vertices.

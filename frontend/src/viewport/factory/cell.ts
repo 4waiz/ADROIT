@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // What surrounds the simulated cell, laid out around its footprint. The arms BRIDGE drives are
 // collaborative robots, which plants run without fences: the cell is a painted boundary with a
 // keep-clear band at the operator's side and a laser scanner at the bench, a control cabinet

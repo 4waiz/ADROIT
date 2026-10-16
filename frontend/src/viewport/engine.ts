@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The viewport: a three.js stage that draws what the simulator reports, and turns pointer
 // gestures into commands. It never moves a simulated body itself: body groups take the poses
 // in each frame, and the tool-centre gizmo sends cursor samples the host's IK tracks.

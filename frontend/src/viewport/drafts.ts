@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The builder's draft, previewed: a translucent ghost per object at its document placement, and a
 // gizmo that edits that placement. Ghosts are design-time geometry, not simulated state; Build
 // turns the document into physics. Positions are the work-surface frame the document uses.

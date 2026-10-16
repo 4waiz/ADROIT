@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The robotics lab around the cell: robots that are scenery, not simulation. A palletizing arm
 // stacks cartons off an infeed, a delta picker takes parts off a moving belt, two cobots pass parts
 // between their trays and an AMR drives a loop around the cell. Each runs a loop of its own so the

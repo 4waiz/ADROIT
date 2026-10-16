@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // A stand under any arm the simulation holds in the air. A fixed-base arm is welded to the world
 // wherever its scene puts it; when nothing static is drawn beneath its base (a Panda set beside
 // the bench rather than on it), the page draws the pedestal it would stand on in a real cell.

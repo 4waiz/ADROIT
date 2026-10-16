@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // Engineering overlays, each drawn from what the frame carries: link frames at the bodies'
 // poses, the tool-centre target against the measured tool centre, contact points and their
 // forces from MuJoCo's contact table, centres of mass from the model, regions from the scene.

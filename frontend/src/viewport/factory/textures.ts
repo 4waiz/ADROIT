@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // Textures the factory draws itself: safety stripes, cartons, signs, floor lettering, the HMI
 // screen, contact shadows and dust. Photographic surfaces (floor, cladding, panels) are files; these are
 // graphics, which a canvas draws crisply at any size.

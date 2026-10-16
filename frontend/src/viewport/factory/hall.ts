@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: LicenseRef-BRIDGE
 // The building and what stands in it away from the cell: a 36 x 26 m portal-frame hall with
 // window bands, skylights and LED high-bays; pallet racking, a CNC machine line, a work-bench
 // wall, an AMR at its charger. Local frame: origin on the floor under the cell's centre, z up.
