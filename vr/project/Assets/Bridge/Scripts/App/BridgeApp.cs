@@ -75,7 +75,7 @@ namespace Bridge.App
             QualitySettings.vSyncCount = 1;
             Time.fixedDeltaTime = 1f / 90f;
             Physics.defaultContactOffset = 0.004f;
-            Settings.Ephemeral = HasArg("-autotest");
+            Settings.Ephemeral = HasArg("-autotest") || HasArg("-film");
             Settings = Settings.Load();
             Progress = Progress.Load();
         }
@@ -105,7 +105,7 @@ namespace Bridge.App
             Axes = new AxesViz(WorldRoot);
             yield return null;
 
-            XR = XRSystem.Create(transform, HasArg("-desktop") || HasArg("-autotest"));
+            XR = XRSystem.Create(transform, HasArg("-desktop") || HasArg("-autotest") || HasArg("-film"));
             Locomotion = new Locomotion(XR, transform);
             Toasts = new Toasts(UIRoot);
             Lessons = new LessonRunner(this);
@@ -146,6 +146,7 @@ namespace Bridge.App
             string auto = Arg("-autotest");
             string lesson = Arg("-lesson");
             if (auto != null) gameObject.AddComponent<AutoTest>().Run(auto, Arg("-shots"));
+            else if (Arg("-film") != null) gameObject.AddComponent<Film>().Run(Arg("-film"), Arg("-take"));
             else if (lesson != null && int.TryParse(lesson, out int li)) Lessons.Start(Mathf.Clamp(li - 1, 0, Lessons.Curriculum.Count - 1));
             else StartCoroutine(Welcome());
         }
@@ -268,7 +269,7 @@ namespace Bridge.App
             SafetyZones.Tick(dt, XR.Head.position);
             Joints.Tick(dt, Cell, Interaction.Mode == ControlMode.Drive);
             Axes.Tick(Panda, Cell);
-            Pendant.Tick(XR.Left.Grip, XR.XRActive, XR.Head);
+            Pendant.Tick(XR.Left.Grip, XR.XRActive || ControllerModel.ShowInDesktop, XR.Head);
             Toasts.Tick(XR.Head);
             Menus.Tick();
             Certificate.Tick(dt);

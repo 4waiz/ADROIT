@@ -255,8 +255,12 @@ namespace Bridge.UI
             root.SetParent(parent, false);
         }
 
+        /// <summary>No toasts (the film mode keeps its frames clean).</summary>
+        public static bool Quiet;
+
         public void Show(string text, string icon = "info", Color? tint = null, float life = 2.8f)
         {
+            if (Quiet) return;
             var go = new GameObject("toast");
             go.layer = Layers.UI;
             go.transform.SetParent(root, false);

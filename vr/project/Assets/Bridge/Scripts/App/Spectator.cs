@@ -29,6 +29,8 @@ namespace Bridge.App
         TextMeshProUGUI title, status, lesson, keys;
         Image band;
         bool overlay = true;
+        /// <summary>The trainer overlay on the laptop's screen (F4 toggles it).</summary>
+        public bool Overlay { get => overlay; set => overlay = value; }
         public bool CertificateShot;
 
         public static Spectator Create(BridgeApp app)

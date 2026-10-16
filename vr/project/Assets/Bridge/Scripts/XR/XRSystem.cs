@@ -265,6 +265,9 @@ namespace Bridge.XR
             foreach (var h in Hands) h.Track(dt);
         }
 
+        /// <summary>Poses the controllers on the desktop after the mouse and keys have (the film mode's hands).</summary>
+        public System.Action<XRSystem> Puppet;
+
         static readonly List<XRDisplaySubsystem> displays = new();
 
         static bool AnyDisplayRunning()
@@ -391,8 +394,8 @@ namespace Bridge.XR
                 h.Pointer.Tip = null;
             }
             // Keys for the controllers' buttons (shown in the trainer overlay).
-            if (kb == null) return;
-            DesktopKeys(kb);
+            if (kb != null) DesktopKeys(kb);
+            Puppet?.Invoke(this);
         }
 
         void DesktopKeys(Keyboard kb)
