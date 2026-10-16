@@ -131,6 +131,7 @@ export class ViewportEngine {
   private environmentName: EnvironmentName = "studio";
   private bloom: UnrealBloomPass | null = null;
   private needsFactoryFit = false;
+  private helpersHidden = false;
   private onEnvironmentProgress: ((fraction: number, ready: boolean) => void) | null = null;
 
   constructor(
@@ -546,6 +547,7 @@ export class ViewportEngine {
     this.built = buildScene(manifest, geometry, { premium: this.quality !== "performance" });
     this.scene.add(this.built.root);
     this.overlays = new OverlayLayer(manifest, this.built);
+    this.overlays.group.visible = !this.helpersHidden;
     this.scene.add(this.overlays.group);
     if (this.overlayState) this.setOverlays(this.overlayState);
     const surfaceZ = manifest.cell.surfaceZ;
@@ -637,7 +639,7 @@ export class ViewportEngine {
   setGizmoArm(arm: string | null): void {
     this.gizmoArm = arm;
     const helper = this.gizmo.getHelper();
-    helper.visible = Boolean(arm);
+    helper.visible = Boolean(arm) && !this.helpersHidden;
     this.gizmo.enabled = Boolean(arm);
   }
 
@@ -847,6 +849,13 @@ export class ViewportEngine {
       return;
     }
     this.tween = { from: [this.camera.position.clone(), this.controls.target.clone()], to: [position, look], t0: performance.now(), ms };
+  }
+
+  /** Hides or shows the gizmo and the engineering overlays, for a clean picture; the selection stays. */
+  setHelpersVisible(visible: boolean): void {
+    this.helpersHidden = !visible;
+    this.gizmo.getHelper().visible = visible && Boolean(this.gizmoArm);
+    if (this.overlays) this.overlays.group.visible = visible;
   }
 
   /** Where the factory stands (its floor origin under the cell's centre), or null in the studio. */

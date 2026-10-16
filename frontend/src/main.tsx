@@ -26,6 +26,7 @@ import { useStore } from "./state/store";
   view: (eye: number[], target: number[], ms = 0) => getEngine()?.setView(eye, target, ms),
   factory: () => getEngine()?.factoryOrigin() ?? null,
   stats: () => useStore.getState().renderStats,
+  helpers: (visible: boolean) => getEngine()?.setHelpersVisible(visible),
   manifest: () => {
     const m = live.manifest;
     return m ? { generation: m.generation, arms: m.arms.map((a) => ({ name: a.name, joints: a.joints.length })), subjects: m.subjects.map((x) => x.key) } : null;

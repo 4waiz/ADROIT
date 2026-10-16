@@ -13,7 +13,7 @@ import lightLogo from "../../../../light.png";
 import { buildSurround, type CellSurround, type Footprint, type MachineState } from "./cell";
 import { buildHall, HALL, type Props } from "./hall";
 import { type FactoryTextures, Materials } from "./kit";
-import { type ScreenState, shaft, softDot } from "./textures";
+import { type ScreenState, softDot } from "./textures";
 
 export type { Footprint, MachineState, ScreenState };
 export { HALL };
@@ -188,49 +188,6 @@ export class FactoryEnvironment {
   }
 
   private buildAtmosphere(): void {
-    // Light falling from the skylights: soft vertical sheets, crossed so they read from any side.
-    const material = new THREE.ShaderMaterial({
-      uniforms: { map: { value: shaft() }, color: { value: new THREE.Color(1.0, 0.96, 0.88) }, opacity: { value: 0.12 } },
-      vertexShader: [
-        "varying vec2 vUv;",
-        "varying float vDepth;",
-        "void main() {",
-        "  vUv = uv;",
-        "  vec4 mv = modelViewMatrix * vec4(position, 1.0);",
-        "  vDepth = -mv.z;",
-        "  gl_Position = projectionMatrix * mv;",
-        "}",
-      ].join("\n"),
-      fragmentShader: [
-        "uniform sampler2D map;",
-        "uniform vec3 color;",
-        "uniform float opacity;",
-        "varying vec2 vUv;",
-        "varying float vDepth;",
-        "void main() {",
-        "  // Invisible within 2 m of the eye, full from 7 m: a shaft is seen from outside it.",
-        "  float a = texture2D(map, vUv).a * opacity * smoothstep(2.0, 7.0, vDepth);",
-        "  gl_FragColor = vec4(color * a, a);",
-        "}",
-      ].join("\n"),
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-      side: THREE.DoubleSide,
-    });
-    const geometry = new THREE.PlaneGeometry(1.4, 9.2);
-    for (const x of [-10, -4, 2, 8, 14]) {
-      for (const y of [-4.6, 4.6]) {
-        for (const yaw of [0, Math.PI / 2]) {
-          const m = new THREE.Mesh(geometry, material);
-          m.position.set(x + (y > 0 ? 0.6 : -0.6), y * 0.92, 4.6);
-          // Tilted a little, as sunlight comes in at an angle; the sheet stands upright first.
-          m.rotation.set(Math.PI / 2 - 0.12, 0, yaw, "ZXY");
-          m.renderOrder = 5;
-          this.atmosphere.add(m);
-        }
-      }
-    }
     const count = 260;
     const positions = new Float32Array(count * 3);
     const dustGeometry = new THREE.BufferGeometry();

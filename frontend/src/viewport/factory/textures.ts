@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-// Textures the factory draws itself: safety stripes, wire mesh, signs, the HMI screen, light
-// shafts and dust. Photographic surfaces (floor, cladding, machine panels) are files; these are
+// Textures the factory draws itself: safety stripes, cartons, signs, floor lettering, the HMI
+// screen, contact shadows and dust. Photographic surfaces (floor, cladding, panels) are files; these are
 // graphics, which a canvas draws crisply at any size.
 
 import * as THREE from "three";
@@ -77,25 +77,6 @@ export function softDot(): THREE.CanvasTexture {
   grad.addColorStop(1, "rgba(255,255,255,0)");
   g.fillStyle = grad;
   g.fillRect(0, 0, 64, 64);
-  return finish(c);
-}
-
-/** A light shaft: bright at the top, fading down and towards both edges. */
-export function shaft(): THREE.CanvasTexture {
-  const [c, g] = canvas(128, 512);
-  const v = g.createLinearGradient(0, 0, 0, 512);
-  v.addColorStop(0, "rgba(255,255,255,0.9)");
-  v.addColorStop(0.55, "rgba(255,255,255,0.35)");
-  v.addColorStop(1, "rgba(255,255,255,0)");
-  g.fillStyle = v;
-  g.fillRect(0, 0, 128, 512);
-  g.globalCompositeOperation = "destination-in";
-  const h = g.createLinearGradient(0, 0, 128, 0);
-  h.addColorStop(0, "rgba(0,0,0,0)");
-  h.addColorStop(0.5, "rgba(0,0,0,1)");
-  h.addColorStop(1, "rgba(0,0,0,0)");
-  g.fillStyle = h;
-  g.fillRect(0, 0, 128, 512);
   return finish(c);
 }
 
