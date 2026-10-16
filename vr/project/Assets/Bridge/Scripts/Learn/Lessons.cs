@@ -503,7 +503,7 @@ namespace Bridge.Learn
             doneChip = Pane.Make(page, "done", new Vector2(0.15f, 0.036f), new Color(Pal.Ok.r, Pal.Ok.g, Pal.Ok.b, 0.0f), 0.018f, blur: false, pos: new Vector3(-Wd / 2 + UIStyle.Pad + 0.075f, y, -0.001f));
             done = Bridge.UI.Text.Make(page, "", UIStyle.Small, Color.white, TextAlignmentOptions.Center, 0.15f, 0.036f, "Figtree-Bold", false, new Vector3(-Wd / 2 + UIStyle.Pad + 0.075f, y, 0));
             if (s.ActionLabel != null)
-                action = Button.Make(page, s.ActionLabel, new Vector2(0.2f, 0.036f), () => s.OnAction?.Invoke(), ButtonStyle.Secondary, s.ActionIcon, UIStyle.Tiny, new Vector3(-Wd / 2 + UIStyle.Pad + 0.26f, y, 0));
+                action = Button.Make(page, s.ActionLabel, new Vector2(0.2f, 0.036f), () => s.OnAction?.Invoke(), ButtonStyle.Primary, s.ActionIcon, UIStyle.Tiny, new Vector3(-Wd / 2 + UIStyle.Pad + 0.26f, y, 0));
             int n = lesson.Steps.Count;
             float dw = Mathf.Min(0.016f, 0.22f / n);
             for (int i = 0; i < n; i++)
