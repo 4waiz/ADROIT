@@ -48,6 +48,7 @@ namespace Bridge.App
         public Settings Settings;
         public Progress Progress;
         public Spectator Spectator;
+        public Voice Voice;
         public readonly List<Graspable> Parts = new();
         public Graspable Cube;
         public readonly List<Graspable> Batch = new();
@@ -56,7 +57,7 @@ namespace Bridge.App
         public bool FreePlay { get; private set; }
         public string[] Args;
         AudioSource servo, gripper, alarm, hall;
-        float lastOpening;
+        float lastOpening, duck = 1f;
 
         public static bool HasArg(string name) => Array.IndexOf(Environment.GetCommandLineArgs(), name) >= 0;
 
@@ -86,6 +87,7 @@ namespace Bridge.App
             UIRoot = new GameObject("Interface").transform;
             UIRoot.SetParent(transform, false);
             Sfx.Init(transform);
+            Voice = Voice.Create(transform);
 
             Factory = new Factory(WorldRoot);
             Lab = new Lab(WorldRoot);
@@ -145,7 +147,29 @@ namespace Bridge.App
             string lesson = Arg("-lesson");
             if (auto != null) gameObject.AddComponent<AutoTest>().Run(auto, Arg("-shots"));
             else if (lesson != null && int.TryParse(lesson, out int li)) Lessons.Start(Mathf.Clamp(li - 1, 0, Lessons.Curriculum.Count - 1));
-            else Menus.Open(Menus.Home);
+            else StartCoroutine(Welcome());
+        }
+
+        /// <summary>
+        /// The first launches open on the welcome module, which shows how to point, walk, turn and grab,
+        /// once the headset is on (or after a few seconds on the desktop). Later ones open on the main
+        /// menu, with a word on how to use it.
+        /// </summary>
+        IEnumerator Welcome()
+        {
+            bool first = !Progress.Done("welcome") && Settings.WelcomeOffered < 2;
+            if (!first)
+            {
+                Menus.Open(Menus.Home);
+                Voice.Say(Menus.Greeting, 1.0f);
+                yield break;
+            }
+            float waited = 0;
+            while (!XR.XRActive && waited < 6f) { waited += Time.unscaledDeltaTime; yield return null; }
+            yield return new WaitForSecondsRealtime(0.8f);
+            Settings.WelcomeOffered++;
+            Settings.Save();
+            if (!Lessons.Active && !Tour.Active && !Menus.AnyOpen) Lessons.Start(0);
         }
 
         IEnumerator PlaceAfterXR()
@@ -270,7 +294,9 @@ namespace Bridge.App
                 lastOpening = Panda.Opening;
             }
             if (alarm != null) alarm.volume = Cell.Safety.Stop == StopKind.Emergency ? 0.35f * Sfx.Volume : 0;
-            if (hall != null) hall.volume = 0.12f * Sfx.Volume;
+            // The hall's hum dips while the narrator speaks.
+            duck = Mathf.MoveTowards(duck, Voice != null && Voice.Speaking ? 0.45f : 1f, dt * 1.5f);
+            if (hall != null) hall.volume = 0.12f * Sfx.Volume * duck;
         }
 
         /// <summary>A part dropped off the edge of the world goes back to its spot.</summary>
@@ -284,7 +310,9 @@ namespace Bridge.App
         public void ApplySettings()
         {
             var s = Settings;
-            Locomotion.SmoothMove = s.SmoothMove;
+            Locomotion.StickWalk = s.StickWalk;
+            // Scripted checks stay quiet.
+            if (Voice != null) Voice.On = s.VoiceGuide && !Settings.Ephemeral;
             Locomotion.SnapAngle = s.SnapAngle;
             XR.SetSeated(s.Seated);
             Cell.RequireEnabling = s.RequireEnabling;
@@ -431,7 +459,12 @@ namespace Bridge.App
     [Serializable]
     public class Settings
     {
-        public bool SmoothMove;
+        // The right stick walks, unless someone prefers to jump (teleport) and turn with it.
+        public bool StickWalk = true;
+        // The narrator reads the lessons, hints and the tour.
+        public bool VoiceGuide = true;
+        // How many launches have opened on the welcome module, before it was finished.
+        public int WelcomeOffered;
         public bool Seated;
         public bool AlwaysHints;
         public bool Vignette = true;

@@ -63,6 +63,9 @@ namespace Bridge.App
             };
         }
 
+        public const string DriveSpeech = "You're driving the robot now: the thumbsticks move its hand, and <b>A</b> opens and closes the gripper. Press <b>Y</b> again to walk.";
+        public const string WalkSpeech = "You're walking again. Press <b>Y</b> to drive the robot.";
+
         public void SetMode(ControlMode mode)
         {
             if (Mode == mode) return;
@@ -96,7 +99,14 @@ namespace Bridge.App
 
             // Buttons that work everywhere.
             if (left.MenuDown) { Press("menu"); if (!MenuLocked) app.Menus.ToggleHome(); }
-            if (left.SecondaryDown) { Press("Y"); if (ModeSwitchAllowed) SetMode(Mode == ControlMode.Drive ? ControlMode.Explore : ControlMode.Drive); }
+            if (left.SecondaryDown && ModeSwitchAllowed)
+            {
+                Press("Y");
+                SetMode(Mode == ControlMode.Drive ? ControlMode.Explore : ControlMode.Drive);
+                // Outside a lesson, the narrator says which way the sticks work now.
+                if (!app.Lessons.Active) app.Voice.Say(Mode == ControlMode.Drive ? DriveSpeech : WalkSpeech, 0.15f);
+            }
+            else if (left.SecondaryDown) Press("Y");
             if (left.StickClickDown && Mode == ControlMode.Explore) { Press("L3"); Models[0].HintsForced = Models[1].HintsForced = !Models[1].HintsForced; }
             if (right.StickClickDown && Mode == ControlMode.Explore) { Press("R3"); app.Lessons.Panel.Recentre(); }
             for (int i = 0; i < 2; i++)
@@ -157,8 +167,20 @@ namespace Bridge.App
             cell.JogJointRate = 0;
             app.Locomotion.Enabled = true;
             app.Locomotion.Tick(dt, xr.Left, xr.Right, true, rightOnUI);
-            if (xr.Right.PrimaryDown) { Press("A"); if (app.Tour.Active) app.Tour.Next(); else app.Lessons.Next(fromButton: true); }
-            if (xr.Right.SecondaryDown) { Press("B"); if (app.Tour.Active) app.Tour.Back(); else app.Lessons.Repeat(); }
+            if (xr.Right.PrimaryDown)
+            {
+                Press("A");
+                if (app.Tour.Active) app.Tour.Next();
+                else if (app.Lessons.Finished) app.Lessons.Continue();
+                else app.Lessons.Next(fromButton: true);
+            }
+            if (xr.Right.SecondaryDown)
+            {
+                Press("B");
+                if (app.Tour.Active) app.Tour.Back();
+                else if (app.Lessons.Finished) app.Lessons.ToAcademy();
+                else app.Lessons.Repeat();
+            }
             if (xr.Left.PrimaryDown) { Press("X"); app.Pendant.Show(!app.Pendant.Visible); }
         }
 
@@ -396,10 +418,10 @@ namespace Bridge.App
             r.SetHint(Control.Trigger, "Select");
             if (!drive)
             {
-                l.SetHint(Control.Stick, app.Locomotion.SmoothMove ? "Walk" : "");
+                l.SetHint(Control.Stick, app.Locomotion.StickWalk ? "Turn · jump" : "");
                 l.SetHint(Control.Primary, "Pendant");
                 l.SetHint(Control.Grip, cell.Mode == JogMode.FreeDrive ? "Guide arm" : "Grab");
-                r.SetHint(Control.Stick, "Teleport / turn");
+                r.SetHint(Control.Stick, app.Locomotion.StickWalk ? "Walk" : "Jump · turn");
                 r.SetHint(Control.Primary, app.Lessons.Active ? "Next" : "");
                 r.SetHint(Control.Secondary, app.Lessons.Active ? "Repeat" : "");
                 r.SetHint(Control.Grip, cell.Mode == JogMode.FreeDrive ? "Guide arm" : "Grab");

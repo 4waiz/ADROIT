@@ -26,6 +26,8 @@ namespace Bridge.UI
         public const string Title = "BRIDGE's Next-Gen Factory Digital Twin Simulation for Robotics";
         public const string Product = "Next-Generation Industry 5.0 Robotic Arm Digital Twin Simulation";
         public const string Author = "by Awaiz Ahmed";
+        /// <summary>What the narrator says when the app opens on the main menu.</summary>
+        public const string Greeting = "Welcome to the BRIDGE's Factory Digital Twin Floor. Point your right controller at a button and pull the <b>trigger</b> to choose it. New here? Start with the Robotics Academy.";
 
         public Menus(BridgeApp app)
         {
@@ -155,7 +157,8 @@ namespace Bridge.UI
             var c = Settings.Content;
             var s = app.Settings;
             float w = Settings.Width;
-            Toggle.Make(c, "Smooth movement (left stick)", w, s.SmoothMove, v => { s.SmoothMove = v; app.ApplySettings(); }, Settings.Row(0.05f));
+            Toggle.Make(c, "Walk with the right stick", w, s.StickWalk, v => { s.StickWalk = v; app.ApplySettings(); }, Settings.Row(0.05f));
+            Toggle.Make(c, "Voice guide", w, s.VoiceGuide, v => { s.VoiceGuide = v; app.ApplySettings(); if (!v) app.Voice.Stop(); }, Settings.Row(0.05f));
             Toggle.Make(c, "Seated mode (raise the view)", w, s.Seated, v => { s.Seated = v; app.ApplySettings(); }, Settings.Row(0.05f));
             Toggle.Make(c, "Always show controller labels", w, s.AlwaysHints, v => { s.AlwaysHints = v; app.ApplySettings(); }, Settings.Row(0.05f));
             Toggle.Make(c, "Comfort vignette when moving", w, s.Vignette, v => { s.Vignette = v; app.ApplySettings(); }, Settings.Row(0.05f));
@@ -181,6 +184,7 @@ namespace Bridge.UI
                 "Robot: Franka Emika Panda model from robosuite 1.4.0 (MIT), meshes from franka_description (Apache 2.0); link 5's lettering changed to read BRIDGE.\n" +
                 "Factory photographs, props and HDRI: Poly Haven (CC0).\n" +
                 "Typefaces: Figtree and IBM Plex Mono (SIL Open Font License). Icons: Lucide (ISC).\n" +
+                "Narrator's voice: Kokoro-82M, voice af_heart (Apache 2.0), through kokoro-onnx (MIT).\n" +
                 "Readings in this app come from a simulation and are marked as simulated: no robot hardware is connected.",
                 UIStyle.Tiny, Pal.InkSoft, "Figtree-Regular");
             Button.Make(About.Content, "Back", new Vector2(0.18f, 0.055f), () => Open(Settings), ButtonStyle.Primary, "arrow-left", UIStyle.Small, About.Row(0.055f));

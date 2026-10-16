@@ -260,9 +260,12 @@ namespace Bridge.XR
         float fade;
         float fadeTarget;
         System.Action pending;
-        public bool SmoothMove;
+        /// <summary>The right stick walks (Settings: Walk with the right stick); off, it jumps and turns.</summary>
+        public bool StickWalk = true;
         public float SnapAngle = 30f;
-        public float MoveSpeed = 1.5f;
+        public float MoveSpeed = 1.4f;
+        /// <summary>Metres walked with the stick, for the lessons.</summary>
+        public float Walked;
         public float Comfort;   // 0..1, the vignette while moving
         public bool Enabled = true;
         public int Teleports, Turns;
@@ -332,7 +335,10 @@ namespace Bridge.XR
                 Cancel();
                 return;
             }
-            var s = right.Stick;
+            // The right stick walks, and the left one turns and jumps. With walking off (Settings), the
+            // right stick turns and jumps instead, as most comfort-first VR apps do.
+            var jumpHand = StickWalk ? left : right;
+            var s = jumpHand.Stick;
             // Snap turn.
             if (!Aiming && Mathf.Abs(s.x) > 0.72f && Mathf.Abs(s.y) < 0.5f)
             {
@@ -349,7 +355,7 @@ namespace Bridge.XR
             if (!Aiming && s.y > 0.68f && !pointerOnUI) Aiming = true;
             if (Aiming)
             {
-                Aim(right);
+                Aim(jumpHand);
                 if (s.magnitude < 0.25f)
                 {
                     Aiming = false;
@@ -363,16 +369,46 @@ namespace Bridge.XR
                     }
                 }
             }
-            // Smooth movement on the left stick, if switched on.
-            if (SmoothMove && left.Stick.magnitude > 0.2f)
+            if (StickWalk) Walk(right.Stick, dt);
+        }
+
+        /// <summary>Walks where you look: forward and back, and sideways, sliding along what is in the way.</summary>
+        void Walk(Vector2 stick, float dt)
+        {
+            float m = stick.magnitude;
+            if (m < 0.15f) return;
+            // A light push walks slowly, a full one at walking pace.
+            var push = stick / m * Mathf.Pow(Mathf.Clamp01((m - 0.15f) / 0.85f), 1.4f);
+            var fwd = Vector3.ProjectOnPlane(xr.Head.forward, Vector3.up);
+            if (fwd.sqrMagnitude < 0.01f) fwd = Vector3.ProjectOnPlane(xr.Head.up, Vector3.up);
+            fwd.Normalize();
+            var side = Vector3.Cross(Vector3.up, fwd);
+            var move = (fwd * push.y + side * push.x) * (MoveSpeed * dt);
+            var body = new Vector3(xr.Head.position.x, xr.Origin.position.y, xr.Head.position.z);
+            var to = Clamp(Slide(body, move));
+            xr.Origin.position += to - body;
+            Walked += (to - body).magnitude;
+            Comfort = Mathf.Max(Comfort, 0.55f * push.magnitude);
+        }
+
+        const int WalkMask = Layers.EnvironmentMask | Layers.RobotMask;
+
+        /// <summary>A body 0.22 m round, from the knees to the chest, moved until it meets something and then along it.</summary>
+        static Vector3 Slide(Vector3 from, Vector3 move)
+        {
+            for (int pass = 0; pass < 3 && move.sqrMagnitude > 1e-10f; pass++)
             {
-                var fwd = Vector3.ProjectOnPlane(xr.Head.forward, Vector3.up).normalized;
-                var rightDir = Vector3.Cross(Vector3.up, fwd);
-                var move = (fwd * left.Stick.y + rightDir * left.Stick.x) * (MoveSpeed * dt);
-                var next = xr.Origin.position + move;
-                xr.Origin.position = Clamp(next);
-                Comfort = Mathf.Max(Comfort, 0.5f * left.Stick.magnitude);
+                float dist = move.magnitude;
+                var dir = move / dist;
+                if (!Physics.CapsuleCast(from + Vector3.up * 0.45f, from + Vector3.up * 1.3f, 0.22f, dir, out var hit, dist + 0.02f, WalkMask, QueryTriggerInteraction.Ignore))
+                    return from + move;
+                float free = Mathf.Max(0, hit.distance - 0.02f);
+                from += dir * free;
+                var n = Vector3.ProjectOnPlane(hit.normal, Vector3.up);
+                if (n.sqrMagnitude < 1e-6f) break;
+                move = Vector3.ProjectOnPlane(dir * (dist - free), n.normalized);
             }
+            return from;
         }
 
         Vector3 Clamp(Vector3 p) => new(Mathf.Clamp(p.x, Bounds.xMin, Bounds.xMax), p.y, Mathf.Clamp(p.z, Bounds.yMin, Bounds.yMax));

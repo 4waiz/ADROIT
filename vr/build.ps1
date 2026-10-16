@@ -12,10 +12,14 @@
       2. export the repository's models, textures, fonts and icons into it (export_assets.py);
       3. run BridgeSetup.Setup in batch mode (render pipeline, OpenXR, fonts, materials, scene);
       4. run BridgeSetup.Build: a Windows player in %LOCALAPPDATA%\BridgeVR\build;
-      5. install it to %LOCALAPPDATA%\Programs\BRIDGE VR and make the desktop shortcut.
+      5. ask the player for every line its narrator says, and speak the new ones with Kokoro
+         (vr/tools/voice.py) into the player's StreamingAssets\Voice;
+      6. install it to %LOCALAPPDATA%\Programs\BRIDGE VR and make the desktop shortcut.
 
     Needs: Unity 6000.6 with Windows build support, uv (or Python with numpy, Pillow, fontTools and
-    brotli), Microsoft Edge (it draws the canvas textures and icons).
+    brotli), Microsoft Edge (it draws the canvas textures and icons). For the voice: kokoro-onnx and
+    soundfile (in $env:BRIDGE_VOICE_PYTHON, a ~\.kokoro-venv, or fetched by uv) and Kokoro's model
+    files in %LOCALAPPDATA%\BridgeVR\kokoro; without them the app is built without its voice.
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File vr\build.ps1
@@ -27,6 +31,7 @@ param(
     [switch]$SkipSetup,
     [switch]$SkipBuild,
     [switch]$NoInstall,
+    [switch]$SkipVoice,
     [string]$Test,
     [switch]$Run
 )
@@ -123,7 +128,36 @@ if (-not $SkipBuild) {
     Invoke-Unity $unity 'Bridge.EditorTools.BridgeSetup.Build' (Join-Path $Logs 'build.log') @('-bridgeOut', "`"$Out`"")
 }
 
-# ------------------------------------------------------------------ 5. install
+# ------------------------------------------------------------------ 5. the narrator's voice
+# The Python that has kokoro-onnx and soundfile: one named for it, a Kokoro venv in the user's
+# profile (what HyperFrames uses), or uv fetching them.
+function Voice-Python {
+    if ($env:BRIDGE_VOICE_PYTHON) { return , @($env:BRIDGE_VOICE_PYTHON) }
+    $venv = Join-Path $env:USERPROFILE '.kokoro-venv\Scripts\python.exe'
+    if (Test-Path $venv) { return , @($venv) }
+    if (Get-Command uv -ErrorAction SilentlyContinue) { return , @('uv', 'run', '--no-project', '--with', 'kokoro-onnx', '--with', 'soundfile', 'python') }
+    return , @('python')
+}
+if (-not $SkipVoice -and (Test-Path (Join-Path $Out $Exe))) {
+    Step 'Voice: speaking the narration'
+    $list = Join-Path $Root 'narration'
+    Remove-Item $list -Recurse -Force -ErrorAction SilentlyContinue
+    $nlog = Join-Path $Logs 'narration.log'
+    Start-Process -FilePath (Join-Path $Out $Exe) -ArgumentList @('-desktop', '-autotest', 'narration', '-shots', "`"$list`"", '-screen-width', '960', '-screen-height', '540', '-screen-fullscreen', '0', '-logFile', "`"$nlog`"") -Wait
+    $json = Join-Path $list 'narration.json'
+    if (Test-Path $json) {
+        $py = Voice-Python
+        $voiceArgs = @()
+        if ($py.Length -gt 1) { $voiceArgs += $py[1..($py.Length - 1)] }
+        $voiceArgs += @((Join-Path $Vr 'tools\voice.py'), '--lines', $json, '--out', (Join-Path $Out 'BRIDGE VR_Data\StreamingAssets\Voice'), '--cache', (Join-Path $Root 'voice-cache'))
+        $env:PYTHONIOENCODING = 'utf-8'
+        & $py[0] @voiceArgs
+        if ($LASTEXITCODE -ne 0) { Write-Host 'The narrator could not speak (see above); the app works without its voice.' -ForegroundColor Yellow }
+    }
+    else { Write-Host "The player wrote no narration list; see $nlog" -ForegroundColor Yellow }
+}
+
+# ------------------------------------------------------------------ 6. install
 if (-not $NoInstall) {
     Step 'Installing'
     Get-Process -Name 'BRIDGE VR' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue

@@ -131,7 +131,43 @@ namespace Bridge.Learn
         public readonly List<string> SeenDetail = new();
         float doneAt;
         int quizChoice = -1;
+        bool hinted;
+        int praised;
         public event Action<Lesson> LessonFinished;
+
+        // ------------------------------------------------------------------ what the narrator says
+        /// <summary>A step: its title, then its words; a quick check: its question.</summary>
+        public static string StepSpeech(LessonStep s) => s.Quiz != null ? "Quick check. " + s.Quiz.Question : Sentence(s.Title) + s.Body;
+        public static string HintSpeech(LessonStep s) => "Here's a tip. " + s.Hint;
+        public static string RightSpeech(LessonStep s) => "That's right. " + s.Quiz.Why;
+        public const string WrongSpeech = "Not quite. Have another look, then try again.";
+        /// <summary>When a step is done and waits for you, in turn.</summary>
+        public static readonly string[] DoneSpeech =
+        {
+            "Well done. Press <b>A</b> to go on.",
+            "Nice work. Press <b>A</b> for the next step.",
+            "That's it. Press <b>A</b> when you're ready.",
+        };
+        public const string FinishSpeech = "Module complete. Well done! Press <b>A</b> to start the next module, or <b>B</b> to go back to the Academy.";
+        public const string LastSpeech = "That's every module complete. Brilliant work! Press <b>A</b> to see your certificate.";
+
+        static string Sentence(string title) => string.IsNullOrEmpty(title) ? "" : title + (".!?".IndexOf(title[title.Length - 1]) >= 0 ? " " : ". ");
+
+        /// <summary>Every line the lessons can say, for the build to speak (vr/tools/voice.py).</summary>
+        public IEnumerable<string> Narration()
+        {
+            foreach (var l in Curriculum)
+                foreach (var s in l.Steps)
+                {
+                    yield return StepSpeech(s);
+                    if (s.Hint != null) yield return HintSpeech(s);
+                    if (s.Quiz != null && !string.IsNullOrEmpty(s.Quiz.Why)) yield return RightSpeech(s);
+                }
+            yield return WrongSpeech;
+            foreach (var d in DoneSpeech) yield return d;
+            yield return FinishSpeech;
+            yield return LastSpeech;
+        }
 
         public LessonRunner(BridgeApp app)
         {
@@ -191,6 +227,8 @@ namespace Bridge.Learn
                 }
             else foreach (var m in app.Interaction.Models) m.HintsForced = app.Settings.AlwaysHints;
             Panel.ShowStep();
+            hinted = false;
+            app.Voice.Say(StepSpeech(s), 0.35f);
         }
 
         void ExitStep()
@@ -265,6 +303,7 @@ namespace Bridge.Learn
             foreach (var m in app.Interaction.Models) { m.ClearHighlights(); m.HintsForced = app.Settings.AlwaysHints; }
             Panel.Show(false);
             app.AfterLesson();
+            app.Voice.Stop();
             if (!silent) Sfx.Play("close", 0.5f);
         }
 
@@ -274,7 +313,25 @@ namespace Bridge.Learn
             app.Progress.MarkDone(Current.Id, QuizAsked > 0 ? QuizRight / (float)QuizAsked : 1f);
             Sfx.Play("complete");
             Panel.ShowFinished();
+            app.Voice.Say(LessonIndex + 1 < Curriculum.Count ? FinishSpeech : LastSpeech, 0.6f);
             LessonFinished?.Invoke(Current);
+        }
+
+        /// <summary>A on a finished module: the next one, or the certificate after the last.</summary>
+        public void Continue()
+        {
+            if (!Active || !Finished) return;
+            int next = LessonIndex + 1;
+            if (next < Curriculum.Count) Start(next);
+            else { Exit(); app.Certificate.Show(); }
+        }
+
+        /// <summary>B on a finished module: back to the Academy's list.</summary>
+        public void ToAcademy()
+        {
+            if (!Active || !Finished) return;
+            Exit();
+            app.Menus.Open(app.Menus.Academy);
         }
 
         public void Answer(int option)
@@ -290,8 +347,13 @@ namespace Bridge.Learn
             {
                 StepComplete = true;
                 Sfx.Play("success", 0.8f);
+                if (!string.IsNullOrEmpty(s.Quiz.Why)) app.Voice.Say(RightSpeech(s), 0.3f);
             }
-            else Sfx.Play("error", 0.7f);
+            else
+            {
+                Sfx.Play("error", 0.7f);
+                app.Voice.Say(WrongSpeech, 0.2f);
+            }
             Panel.ShowAnswer(option, right);
         }
 
@@ -311,6 +373,13 @@ namespace Bridge.Learn
                 Sfx.Play("success", 0.8f);
                 app.XR.Buzz(1, 0.3f, 0.05f);
                 Panel.ShowStepDone();
+                // A step that waits for A says so, once the explanation is over.
+                if (!s.Auto) app.Voice.Say(DoneSpeech[praised++ % DoneSpeech.Length], 0.2f, after: true);
+            }
+            if (!hinted && !StepComplete && s.Hint != null && StepClock > s.HintAfter)
+            {
+                hinted = true;
+                app.Voice.Say(HintSpeech(s), 0.1f, after: true);
             }
             if (StepComplete && s.Done != null && s.Auto && doneAt >= 0 && StepClock - doneAt > 1.6f) Next();
             Panel.Tick(dt);

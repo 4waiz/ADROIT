@@ -71,6 +71,17 @@ namespace Bridge.Learn
 
         void Add(string title, string text, Vector3 spot, Vector3 look, string icon) => stops.Add((title, text, spot, look, icon));
 
+        // ------------------------------------------------------------------ what the narrator says
+        string Speech(int i) => stops[i].title + ". " + stops[i].text;
+        public const string Help = "Press <b>A</b> for the next stop, or <b>B</b> to go back.";
+
+        /// <summary>Every line the tour can say, for the build to speak (vr/tools/voice.py).</summary>
+        public IEnumerable<string> Narration()
+        {
+            for (int i = 0; i < stops.Count; i++) yield return Speech(i);
+            yield return Help;
+        }
+
         public void Start()
         {
             app.Lessons.Exit(silent: true);
@@ -84,6 +95,7 @@ namespace Bridge.Learn
         {
             if (!Active) return;
             Active = false;
+            app.Voice.Stop();
             if (window != null) window.Show(false);
             if (arrow != null) Object.Destroy(arrow.gameObject);
         }
@@ -127,6 +139,8 @@ namespace Bridge.Learn
             window.Show(true, true);
             app.StartCoroutine(PlaceSoon());
             Sfx.Play("step", 0.6f);
+            app.Voice.Say(Speech(Index), 0.6f);
+            if (Index == 0) app.Voice.Say(Help, 0.3f, after: true);
         }
 
         System.Collections.IEnumerator PlaceSoon()

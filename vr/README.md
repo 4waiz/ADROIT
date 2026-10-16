@@ -23,21 +23,33 @@ Double-click **BRIDGE's Next-Gen Factory Digital Twin VR** on the desktop. Then:
    as the active OpenXR runtime (it is, on this machine).
 2. The app opens on the laptop first. As soon as Link is up it switches into the headset; if
    Link drops, it falls back to the laptop and switches back when Link returns.
-3. Without a headset the app runs on the desktop, with the mouse and keyboard standing in for
+3. The first time, it opens on module 1, **Welcome to the factory**: a narrator talks you
+   through pointing, pressing, walking, turning and picking up a part, one step at a time. After
+   that it opens on the main menu.
+4. Without a headset the app runs on the desktop, with the mouse and keyboard standing in for
    the controllers (see below), so a trainer can preview a module anywhere.
+
+## The voice guide
+
+A narrator reads every lesson step aloud as it opens, says when you have done it and which
+button moves you on, reads the tips that appear when you are stuck, and reads each stop of the
+factory tour. Press **B** to hear a step again. Turn it off in Settings (Voice guide). The voice
+is Kokoro's `af_heart`, the same as the studio's demo video.
 
 ## Controls
 
 Both controllers: **trigger** points and selects, **Menu** (left) opens the main menu, **Y**
 switches between exploring and driving the robot. Labels beside each button say what it does at
-that moment.
+that moment. Walking stops at walls, machines and the robot. If walking with the stick is
+uncomfortable, turn off *Walk with the right stick* in Settings: the right stick then jumps
+(teleports) and turns instead.
 
 | | Explore | Drive the robot |
 | --- | --- | --- |
-| Right stick | Teleport (push forward, release), snap turn | Hand up and down, turn the wrist (joint mode: turn the joint) |
-| Left stick | Walk, if smooth movement is on | Hand across the floor (joint mode: choose a joint) |
-| A | Next lesson step | Open or close the gripper |
-| B | Repeat the step | Jog mode: Cartesian, joint, hand guide |
+| Right stick | Walk where you look (forward, back, sideways) | Hand up and down, turn the wrist (joint mode: turn the joint) |
+| Left stick | Turn left or right; push forward, aim the arc and let go to jump | Hand across the floor (joint mode: choose a joint) |
+| A | Next lesson step; at the end of a module, the next module | Open or close the gripper |
+| B | Repeat the step (and hear it again); at the end of a module, the Academy | Jog mode: Cartesian, joint, hand guide |
 | X | Show the teach pendant | Save this spot as a waypoint |
 | Stick clicks | Left: keep the labels showing; right: bring the lesson panel back | Left: jog frame; right: speed |
 | Grips | Pick up parts; in hand-guide mode, take the robot's wrist | Left grip: the enabling switch, when it is required |
@@ -63,7 +75,14 @@ script keeps Unity's project outside OneDrive, in `%LOCALAPPDATA%\BridgeVR\proje
 (`vr/tools/export_assets.py`), lets `BridgeSetup` configure everything from code (URP, OpenXR,
 fonts, materials, the scene), builds the player, installs it to
 `%LOCALAPPDATA%\Programs\BRIDGE VR` and makes the shortcut. Options: `-SkipExport`,
-`-SkipSetup`, `-SkipBuild`, `-NoInstall`, `-Run`.
+`-SkipSetup`, `-SkipBuild`, `-SkipVoice`, `-NoInstall`, `-Run`.
+
+The voice step runs the built player with `-autotest narration`, which writes every line the
+narrator can say, then `tools/voice.py` speaks the new ones with Kokoro into the player's
+`StreamingAssets\Voice` (one OGG per line, named by a hash of its words; lines already spoken
+come from a cache). It needs `kokoro-onnx` and `soundfile` (from `BRIDGE_VOICE_PYTHON`, a
+`~\.kokoro-venv`, or uv) and Kokoro's model files, `kokoro-v1.0.onnx` and `voices-v1.0.bin`,
+in `%LOCALAPPDATA%\BridgeVR\kokoro`. Without them the app is built without its voice.
 
 `-Test robot` runs the installed app with `-autotest robot`: reach, jogging, joint limits, the
 bench stopping the hand, the pick and place program, the emergency stop, separation monitoring,
@@ -87,5 +106,6 @@ screenshots of every screen; `-Test lessons` steps through all ten modules. Resu
 Third-party content in the build: the Panda model from robosuite 1.4.0 (MIT) with
 `franka_description` meshes (Apache 2.0), link 5's lettering changed to read BRIDGE (see
 `assets/embodiments/panda/README.md`); Poly Haven props, textures and HDRI (CC0); Figtree
-and IBM Plex Mono (SIL Open Font License); Lucide icons (ISC); Unity's runtime under Unity's
-terms. The app's About screen lists them too.
+and IBM Plex Mono (SIL Open Font License); Lucide icons (ISC); the narrator's voice, Kokoro-82M
+(Apache 2.0) through kokoro-onnx (MIT); Unity's runtime under Unity's terms. The app's About
+screen lists them too.

@@ -51,13 +51,14 @@ namespace Bridge.Learn
         // ================================================================== 1
         static Lesson Welcome()
         {
-            var l = new Lesson { Id = "welcome", Title = "Welcome to the factory", Summary = "Look, point, move and grab", Icon = "glasses", Minutes = 5, Spot = CellLayout.WelcomeSpot };
+            var l = new Lesson { Id = "welcome", Title = "Welcome to the factory", Summary = "Point, walk, turn and grab", Icon = "glasses", Minutes = 5, Spot = CellLayout.WelcomeSpot };
             l.Facing = CellLayout.Facing(CellLayout.WelcomeSpot, CellLayout.RobotBase);
-            l.Step("Welcome to the BRIDGE's Factory Digital Twin Floor",
-                "You are standing in a digital factory. In this Academy you will learn to operate a collaborative robot arm, a cobot, and see how its digital twin helps a team plan, test and improve a real cell.\n\nTake a moment to look around, then press <b>Next</b> on this panel (point at it with either controller and pull the trigger) or press <b>A</b>.");
+            var hello = l.Step("Welcome to the BRIDGE's Factory Digital Twin Floor",
+                "You're standing in a digital factory. I'm your guide, and I'll take you through everything one step at a time.\n\nHave a look around. When you're ready, press <b>A</b> on your right controller.");
+            hello.Highlight = new[] { R(Control.Primary) };
 
-            var point = l.Step("Point and select",
-                "Each controller sends out a ray. Point at the orange button below and pull the <b>trigger</b> with your index finger.");
+            var point = l.Step("Point and press",
+                "Each controller sends out a beam. Point your right controller at the orange button below, then pull the <b>trigger</b> under your index finger.");
             bool pressed = false;
             point.Enter = () => pressed = false;
             point.ActionLabel = "Pull the trigger here";
@@ -65,36 +66,35 @@ namespace Bridge.Learn
             point.OnAction = () => pressed = true;
             point.Done = () => pressed;
             point.Highlight = new[] { L(Control.Trigger), R(Control.Trigger) };
+            point.Hint = "Aim the beam at the orange button until it lights up, then squeeze the trigger.";
 
-            var tele = l.Step("Teleport",
-                "Push the <b>right stick forward</b> and hold it: an arc appears. Aim it at the glowing ring on the floor and let go to jump there.");
+            var walk = l.Step("Walk",
+                "Push the <b>right thumbstick</b> forward to walk where you're looking. Pull it back to step back, or push it to the side to step sideways.\n\nWalk over to the glowing circle on the floor.");
             FloorMarker ring = null;
-            tele.Enter = () => ring = run.Scene.Marker(Web.P(1.8f, -1.2f, 0), "Stand here");
-            tele.Done = () => ring != null && ring.Contains(Head);
-            tele.Highlight = new[] { R(Control.Stick) };
-            tele.Hint = "Push the stick forward until you see the arc, point it at the ring, then let the stick go.";
+            walk.Enter = () => ring = run.Scene.Marker(Web.P(1.8f, -1.2f, 0), "Walk here");
+            walk.Done = () => ring != null && ring.Contains(Head);
+            walk.Highlight = new[] { R(Control.Stick) };
+            walk.Hint = "Push the right thumbstick gently forward and look where you want to go. To jump further, push the left thumbstick forward, aim the arc at the floor and let go.";
 
             var turn = l.Step("Turn",
-                "Flick the <b>right stick left or right</b> to turn in steps. Turn until you face the robot arm.");
-            int turns0 = 0;
-            turn.Enter = () => turns0 = app.Locomotion.Turns;
-            turn.Done = () => (app.Locomotion.Turns > turns0 || !app.XR.XRActive) && Facing(CellLayout.RobotBase, 25f);
-            turn.Highlight = new[] { R(Control.Stick) };
-            turn.Hint = "You can also just turn your body: you are free to walk around in your play space.";
+                "Push the <b>left thumbstick</b> left or right to turn. You can also simply turn your body.\n\nTurn until you face the glowing blue robot. That's the digital twin, and you'll meet it later.");
+            turn.Done = () => Facing(CellLayout.TwinBase, 25f);
+            turn.Highlight = new[] { L(Control.Stick) };
+            turn.Hint = "Flick the left thumbstick to the right, and keep going until the blue robot is in front of you.";
 
             var grab = l.Step("Pick something up",
-                "Walk or teleport to the bench, reach for the orange cube and squeeze the <b>grip</b> button under your middle finger to hold it. Let go to drop it.");
+                "Now walk up to the robot's bench. Put your hand on the orange cube and squeeze the <b>grip</b> button under your middle finger to pick it up. Let go of the grip to drop it.");
             grab.Enter = () => run.Scene.Arrow(app.Cube.transform, new Vector3(0, 0.06f, 0));
             grab.Done = () => run.Saw("button:grip:0") && app.Interaction.Holding(0) || run.Saw("button:grip:1") && app.Interaction.Holding(1);
             grab.Highlight = new[] { L(Control.Grip), R(Control.Grip) };
-            grab.Hint = "Put your hand right on the cube before you squeeze the grip.";
+            grab.Hint = "Put your hand right inside the cube before you squeeze the grip.";
 
-            var buttons = l.Step("Every button has a label",
-                "Look down at a controller: labels show what each button does right now, and they change with what you are doing. Press the <b>left stick</b> in to keep them showing.\n\nThe <b>Menu</b> button (left controller) opens the main menu. <b>Y</b> switches between exploring and driving the robot: you will use it in module 3.");
-            buttons.Highlight = new[] { L(Control.Menu), L(Control.Secondary), L(Control.Stick) };
+            var labels = l.Step("Every button has a label",
+                "Look down at your controllers. The labels beside the buttons tell you what each one does, and they change with what you're doing.\n\nThe <b>Y</b> button switches between walking and driving the robot. You'll try it in module 3.");
+            labels.Highlight = new[] { L(Control.Secondary), R(Control.Primary) };
 
-            l.Step("You're ready",
-                "That is everything you need to get around. Next: meet the robot you will be working with. Press <b>Next</b> to finish this module.");
+            l.Step("The main menu",
+                "The small <b>Menu</b> button on your left controller, the one with three lines, opens the main menu at any time. From there you can start any module, take the factory tour, or change settings.\n\nThat's all you need to get around. Press <b>A</b> to finish this module.");
             l.End = () => app.ResetParts();
             return l;
         }
@@ -504,7 +504,7 @@ namespace Bridge.Learn
             warn.Enter = () => { if (!Cell.Running) Production(); Cell.Safety.SeparationMonitoring = true; app.SafetyZones.Show(true); };
             warn.Done = () => Cell.Safety.Zone == "warning";
             warn.Status = () => $"You are {Cell.Safety.HumanDistance:0.0} m from the robot (amber field: {Cell.Safety.WarningRadius:0.0} m)";
-            warn.Hint = "Walk in your play space, or teleport a little closer with the right stick.";
+            warn.Hint = "Walk a little closer with the right thumbstick, or step forward in your play space.";
 
             var stop = l.Step("Protective stop",
                 "The robot slowed to 30% and the light turned <b>amber</b>. Now step into the <b>red</b> field.");

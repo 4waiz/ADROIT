@@ -28,9 +28,19 @@ namespace Bridge.App
         readonly List<(string name, bool ok, string detail)> results = new();
         readonly List<float> frames = new();
 
+        // What the checks were doing last, to place a slow frame.
+        string doing = "starting";
+
         void Update()
         {
-            if (app != null && app.Ready) frames.Add(Time.unscaledDeltaTime);
+            if (app == null || !app.Ready) return;
+            float dt = Time.unscaledDeltaTime;
+            frames.Add(dt);
+            if (dt > 0.2f && frames.Count > 5)
+            {
+                string lesson = app.Lessons.Active ? $"module {app.Lessons.LessonIndex + 1} step {app.Lessons.StepIndex + 1}" : "no lesson";
+                Debug.Log($"[autotest] slow frame: {dt * 1000:0} ms after {doing} ({lesson})");
+            }
         }
 
         /// <summary>The frame times so far: the desktop window's rate, a floor for the headset's.</summary>
@@ -57,6 +67,7 @@ namespace Bridge.App
 
         void Check(string name, bool ok, string detail = "")
         {
+            doing = "check " + name;
             results.Add((name, ok, detail));
             Debug.Log($"[autotest] {(ok ? "PASS" : "FAIL")} {name}: {detail}");
         }
@@ -69,6 +80,7 @@ namespace Bridge.App
 
         IEnumerator Shot(string name, float settle = 0.6f)
         {
+            doing = "shot " + name;
             yield return Wait(settle);
             yield return new WaitForEndOfFrame();
             string file = Path.Combine(dir, name + ".png");
@@ -94,6 +106,7 @@ namespace Bridge.App
             if (scenario == "robot" || scenario == "all") yield return Robot();
             if (scenario == "shots" || scenario == "all") yield return Shots();
             if (scenario == "lessons" || scenario == "all") yield return Lessons();
+            if (scenario == "narration") Narration();
             CheckFrames();
             Report();
             yield return Wait(0.5f);
@@ -115,6 +128,48 @@ namespace Bridge.App
         }
 
         static string Esc(string s) => (s ?? "").Replace("\\", "\\\\").Replace("\"", "\\\"");
+
+        // ------------------------------------------------------------------ narration
+        /// <summary>
+        /// Writes every line the narrator can say to narration.json in the shots folder: the lessons'
+        /// steps, hints and answers, the tour, the greeting and the mode switch. vr/tools/voice.py speaks them.
+        /// </summary>
+        void Narration()
+        {
+            var said = new List<string>();
+            said.AddRange(app.Lessons.Narration());
+            said.AddRange(app.Tour.Narration());
+            said.Add(Bridge.UI.Menus.Greeting);
+            said.Add(Interaction.DriveSpeech);
+            said.Add(Interaction.WalkSpeech);
+            var keys = new HashSet<string>();
+            var sb = new StringBuilder("{\n  \"voice\": \"af_heart\",\n  \"lines\": [\n");
+            bool firstLine = true;
+            foreach (var line in said)
+            {
+                string text = Voice.Speech(line);
+                string key = Voice.Key(text);
+                if (text.Length == 0 || !keys.Add(key)) continue;
+                if (!firstLine) sb.Append(",\n");
+                firstLine = false;
+                sb.Append($"    {{\"key\": \"{key}\", \"text\": \"{Json(text)}\"}}");
+            }
+            sb.Append("\n  ]\n}\n");
+            File.WriteAllText(Path.Combine(dir, "narration.json"), sb.ToString(), new UTF8Encoding(false));
+            Check("narration", keys.Count > 100, $"{keys.Count} lines to speak");
+        }
+
+        static string Json(string s)
+        {
+            var sb = new StringBuilder();
+            foreach (char c in s)
+            {
+                if (c == '"' || c == '\\') sb.Append('\\').Append(c);
+                else if (c < ' ') sb.Append($"\\u{(int)c:x4}");
+                else sb.Append(c);
+            }
+            return sb.ToString();
+        }
 
         // ------------------------------------------------------------------ robot
         IEnumerator Robot()
@@ -377,6 +432,15 @@ namespace Bridge.App
         // ------------------------------------------------------------------ lessons
         IEnumerator Lessons()
         {
+            // The narrator: the greeting's audio (spoken into StreamingAssets/Voice by the build) plays.
+            app.Voice.On = true;
+            app.Voice.Say(Bridge.UI.Menus.Greeting, 0f);
+            float heard = 0;
+            while (app.Voice.Current == null && heard < 3f) { heard += Time.unscaledDeltaTime; yield return null; }
+            Check("voice", app.Voice.Current != null, app.Voice.Current != null ? $"speaking {heard:0.00} s after asked" : "no audio for the greeting in " + Voice.Dir);
+            app.Voice.Stop();
+            app.Voice.On = false;
+
             var runner = app.Lessons;
             for (int i = 0; i < runner.Curriculum.Count; i++)
             {
