@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <img alt="A digital factory hall: pallet racking, a roller door, a CNC machine line and a conveyor around a robot cell painted on the floor as CELL 01, with its control cabinet and stack light lit green and its operator panel reading RUNNING" src="docs/bridge/media/factory-hall.webp" width="100%" />
+  <img alt="A digital factory hall around a robot cell painted on the floor as CELL 01: its Franka Panda on a pedestal beside the bench, the control cabinet's stack light lit green and blue and the operator panel reading PROGRAM; behind the cell a palletizing arm stacks cartons off an infeed and a delta picker works a belt, in front of pallet racking, a roller door and a CNC machine line" src="docs/bridge/media/factory-hall.webp" width="100%" />
 </p>
 
 BRIDGE puts a GPU-simulated robot cell in a digital factory you can drive from a
@@ -70,7 +70,7 @@ uv run python -m bridge_studio --open
 
 | | |
 | --- | --- |
-| **Digital factory** | The cell stands in a 36 x 26 m hall: an epoxy floor with painted walkways and the cell's boundary, a portal-frame roof with skylights and LED high-bays, pallet racking, a CNC machine line, a conveyor, a control cabinet whose stack light shows what the simulation is doing (green running, blue program, amber paused, red fault) and an operator panel that says it in words. Photo-scanned materials and props (Poly Haven, CC0) and image-based light; nothing in the hall is simulated, and a plain studio stage is one click away. |
+| **Digital factory** | The cell stands in a 36 x 26 m hall: an epoxy floor with painted walkways and the cell's boundary, a portal-frame roof with skylights and LED high-bays, pallet racking, a CNC machine line, a conveyor, a control cabinet whose stack light shows what the simulation is doing (green running, blue program, amber paused, red fault) and an operator panel that says it in words. Around the cell, a robotics lab keeps the hall busy: a palletizing arm stacking cartons off an infeed, a delta picker sorting parts off a belt, two cobots passing parts between their trays and a mobile robot driving its loop. An arm the scene holds in the air (the Panda beside its bench) stands on a bolted pedestal. Photo-scanned materials and props (Poly Haven, CC0) and image-based light; nothing in the hall is simulated, and a plain studio stage is one click away. |
 | **Simple mode** | One panel in plain words: the scene in a sentence, the robot's hand moved with arrows (left, right, towards and away from you, up and down, as the camera sees it), a big Open/Close button, ready-made programs, and a goal that turns green when it is met. |
 | **Teach a program** | Move the hand, press *Save this spot*, add *Close hand*, *Wait*, *Go home*, then *Run my program*; or let *Quick start* build a pick-and-place. Programs run on the service as tasks, step by step, and can repeat. |
 | **Guided tour** | Twelve steps that light up each control and say what it does, in English or Arabic; it opens on a first visit. |
@@ -130,10 +130,13 @@ itself).
 - **Not measured from a real robot.** Telemetry is simulated. Effort is MuJoCo's
   actuator force where the solver exposes it, contacts are the solver's contact
   table, and nothing is filled in where a solver is silent.
-- **The factory is scenery.** Its machines, conveyor and racking are not
-  simulated and do not move; only the cell's stack light and operator panel
-  follow the simulation's state. The red button on that panel is part of the
-  scenery, not a control.
+- **The factory is scenery.** Its machines, conveyor, racking and the lab
+  around the cell are not simulated. The lab's robots play looped animations
+  drawn by the page (they hold still when the system asks for reduced motion),
+  and the pedestal under an arm the scene holds in the air is drawn by the page
+  too; nothing collides with either. Only the cell's stack light and operator
+  panel follow the simulation's state. The red button on that panel is part of
+  the scenery, not a control.
 - A path-traced snapshot holds the simulation while it renders: about two
   minutes the first time (the renderer compiles), seconds after that.
 - One robot embodiment per scene, as in RoboSimStudio; the two-armed YAM cells

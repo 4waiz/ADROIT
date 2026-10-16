@@ -3,7 +3,8 @@
 // own guarding, cabinet and operator panel. Photographic assets (an industrial HDRI for light and
 // reflections, scanned floor and steel textures, props) come from Poly Haven under CC0; see
 // public/factory/ASSETS.md. Nothing here is simulated: it is the room the simulation stands in,
-// and its stack light and panel screen only report what the simulation is doing.
+// and its stack light and panel screen only report what the simulation is doing. The lab's
+// robots around the cell (lab.ts) are animated scenery as well.
 
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -13,6 +14,7 @@ import lightLogo from "../../../../light.png";
 import { buildSurround, type CellSurround, type Footprint, type MachineState } from "./cell";
 import { buildHall, HALL, type Props } from "./hall";
 import { type FactoryTextures, Materials } from "./kit";
+import { buildLab, type Lab } from "./lab";
 import { type ScreenState, softDot } from "./textures";
 
 export type { Footprint, MachineState, ScreenState };
@@ -30,6 +32,8 @@ export class FactoryEnvironment {
   private props: Props = {};
   private hall: THREE.Group | null = null;
   private surround: CellSurround | null = null;
+  private lab: Lab | null = null;
+  private motion = true;
   private atmosphere = new THREE.Group();
   private dust: THREE.Points | null = null;
   private dustSeed: Float32Array | null = null;
@@ -133,6 +137,9 @@ export class FactoryEnvironment {
     this.mats = new Materials(surfaces);
     this.hall = buildHall(this.mats, this.props, darkLogo);
     this.group.add(this.hall);
+    this.lab = buildLab();
+    this.lab.setMotion(this.motion);
+    this.group.add(this.lab.group);
     this.buildAtmosphere();
     if (this.footprint) this.fit(this.footprint);
   }
@@ -149,6 +156,7 @@ export class FactoryEnvironment {
     this.group.add(this.surround.group);
     this.surround.stack.set(this.state);
     this.surround.screen.draw(this.screenState);
+    this.lab?.fit(footprint);
     this.placeDust();
   }
 
@@ -168,10 +176,17 @@ export class FactoryEnvironment {
     this.atmosphere.visible = q.atmosphere;
   }
 
+  /** The lab's robots move unless the person asked for reduced motion. */
+  setMotion(on: boolean): void {
+    this.motion = on;
+    this.lab?.setMotion(on);
+  }
+
   update(dt: number): void {
     if (!this.group.visible) return;
     this.time += dt;
     this.surround?.stack.update(dt);
+    this.lab?.update(dt);
     const dust = this.dust;
     const seed = this.dustSeed;
     if (dust && seed && this.atmosphere.visible) {
@@ -227,6 +242,7 @@ export class FactoryEnvironment {
   dispose(): void {
     this.disposed = true;
     this.surround?.dispose();
+    this.lab?.dispose();
     this.group.traverse((o) => {
       const mesh = o as THREE.Mesh;
       if (mesh.isMesh || (o as THREE.Points).isPoints) {

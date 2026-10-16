@@ -91,8 +91,16 @@ browser (React + TypeScript + three.js)                 python (one process)
   and steel textures, props; `frontend/public/factory/ASSETS.md`), merged into a
   few dozen draw calls. It is laid out around the loaded cell's footprint and
   rebuilt with each scenario. Nothing in it is simulated; the stack light and the
-  panel's screen only report the host's state. The studio stage stays as the
-  other environment.
+  panel's screen only report the host's state. Around the cell, `lab.ts` runs a
+  robotics lab of animated scenery: a palletizing arm, a delta picker, two
+  cobots and an AMR, each on its own loop. The arms follow their tools by
+  inverse kinematics, so what they carry stays in the gripper; a station that a
+  large cell's guarding would overlap is hidden, and the animation stops when the
+  system asks for reduced motion. The studio stage stays as the other environment.
+* **Stands** (`frontend/src/viewport/mounts.ts`). A fixed-base arm is welded to
+  the world wherever its scene puts it; when no static shape is drawn under its
+  base, the page draws a bolted pedestal from the floor to the base, measured
+  from the base's geometry on the first frame. It is not in the simulation.
 * **Simple and Expert.** Simple mode shows the factory and one plain panel (the
   scene, arrows for the hand, Open/Close, programs, the goal); Expert mode is the
   full command centre. Both send the same validated commands; Simple's arrows

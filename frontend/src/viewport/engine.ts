@@ -21,6 +21,7 @@ import type { EnvironmentName, Overlays, Quality, Theme } from "../state/store";
 import { type BuiltScene, buildScene } from "./builder";
 import { DraftLayer } from "./drafts";
 import { FactoryEnvironment, HALL, type MachineState, type ScreenState } from "./factory";
+import { buildMounts, disposeMounts } from "./mounts";
 import { OverlayLayer } from "./overlays";
 
 THREE.Object3D.DEFAULT_UP.set(0, 0, 1);
@@ -131,6 +132,9 @@ export class ViewportEngine {
   private environmentName: EnvironmentName = "studio";
   private bloom: UnrealBloomPass | null = null;
   private needsFactoryFit = false;
+  // Stands under arms the scene holds in the air, measured on the first frame of each scene.
+  private mounts: THREE.Group | null = null;
+  private needsMounts = false;
   private helpersHidden = false;
   private onEnvironmentProgress: ((fraction: number, ready: boolean) => void) | null = null;
 
@@ -219,6 +223,7 @@ export class ViewportEngine {
     );
 
     this.factory = new FactoryEnvironment(this.renderer);
+    this.factory.setMotion(!this.reducedMotion);
     this.scene.add(this.factory.group);
 
     this.applyEnvironment();
@@ -558,6 +563,7 @@ export class ViewportEngine {
     this.fitKeyLight();
     this.appliedSeq = -1;
     this.needsFactoryFit = true;
+    this.needsMounts = true;
     this.built.setBenchTheme(this.environmentName === "factory" ? "factory" : this.theme);
     this.applySelection();
     this.needsFraming = true;
@@ -569,6 +575,8 @@ export class ViewportEngine {
       this.built.dispose();
       this.built = null;
     }
+    disposeMounts(this.mounts);
+    this.mounts = null;
     if (this.overlays) {
       this.scene.remove(this.overlays.group);
       this.overlays.dispose();
@@ -595,6 +603,11 @@ export class ViewportEngine {
       const g = built.bodies[b];
       g.position.set(q[o], q[o + 1], q[o + 2]);
       g.quaternion.set(q[o + 3], q[o + 4], q[o + 5], q[o + 6]);
+    }
+    if (this.needsMounts && this.manifest) {
+      this.needsMounts = false;
+      this.mounts = buildMounts(this.manifest, built);
+      if (this.mounts) built.root.add(this.mounts);
     }
     for (const d of built.deformables) d.update(frame.particles);
     if (this.needsFraming) {
