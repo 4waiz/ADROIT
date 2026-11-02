@@ -428,7 +428,7 @@ namespace Bridge.World
 
             // The wordmark on a dark plate on the north wall, above the machine line (white on graphite).
             var logo = Gen.Tex("wall_logo");
-            float lh = 1.3f, lw = logo != null ? lh * logo.width / (float)logo.height : 4.5f;
+            float lh = 0.95f, lw = logo != null ? lh * logo.width / (float)logo.height : 5.0f;
             Go.Mesh("logo plate", hall, MeshKit.Box(), Mats.Paint(0x1b1f24, 0.55f, 0.3f), Web.P(-6.5f, Y1 - 0.22f, 5.0f), null, Web.S(lw + 0.9f, 0.06f, lh + 0.6f), cast: false);
             Go.Mesh("logo stripe", hall, MeshKit.Box(), Mats.Glow(0xff4713, 2.2f), Web.P(-6.5f, Y1 - 0.22f, 5.0f - (lh + 0.6f) / 2 + 0.04f), null, Web.S(lw + 0.9f, 0.065f, 0.08f), cast: false);
             WallSign(hall, Mats.Decal("wall_logo", 1f), lw, lh, -6.5f, Y1 - 0.26f, 5.05f, 0, -1);
@@ -921,7 +921,7 @@ namespace Bridge.World
             Go.Mesh("glass", Face, MeshKit.Quad(), Mats.Unlit(Pal.Hex(0x0d1014)), Vector3.zero, null, new Vector3(0.5f, 0.31f, 1), cast: false);
             Go.Mesh("bar", Face, MeshKit.Quad(), Mats.Unlit(Pal.Hex(0x151a20)), new Vector3(0, 0.155f - 0.025f, -0.0005f), null, new Vector3(0.5f, 0.05f, 1), cast: false);
             Go.Mesh("rule", Face, MeshKit.Quad(), Mats.Unlit(Pal.Brand * 1.3f), new Vector3(0, 0.155f - 0.05f, -0.0006f), null, new Vector3(0.5f, 0.004f, 1), cast: false);
-            var logo = Go.Mesh("logo", Face, MeshKit.Quad(), Mats.UnlitTex("wordmark_white", Color.white), new Vector3(-0.17f, 0.13f, -0.0008f), null, new Vector3(0.12f, 0.028f, 1), cast: false);
+            var logo = Go.Mesh("logo", Face, MeshKit.Quad(), Mats.UnlitTex("wordmark_white", Color.white), new Vector3(-0.178f, 0.13f, -0.0008f), null, new Vector3(0.104f, 0.0197f, 1), cast: false);
             logo.GetComponent<MeshRenderer>().sharedMaterial = TransparentLogo();
             title = Bridge.UI.Text.Make(Face, "CELL 01", 0.16f, new Color(0.91f, 0.93f, 0.95f), TextAlignmentOptions.Right, 0.2f, 0.04f, "Figtree-Bold", pos: new Vector3(0.13f, 0.13f, -0.001f));
             tones = new[] { Mats.Unlit(Pal.OkGlow * 1.6f), Mats.Unlit(Pal.SafetyYellow * 1.6f), Mats.Unlit(Pal.Hex(0xff4d4f) * 1.6f), Mats.Unlit(Pal.Hex(0x4b9dff) * 1.6f), Mats.Unlit(Pal.Hex(0x9aa3ad)) };

@@ -49,7 +49,7 @@ namespace Bridge.UI
             float top = Home.Top;
             var kick = Text.Make(c, "DIGITAL TWIN  ·  VIRTUAL REALITY", UIStyle.Tiny, Pal.Brand, TextAlignmentOptions.Left, 0.5f, 0.03f, "Figtree-Bold", false, new Vector3(-Home.Size.x / 2 + UIStyle.Pad + 0.25f, top - 0.055f, 0));
             kick.characterSpacing = 8;
-            // The product's title as the person who made it names it, the BRIDGE logo standing for the word.
+            // The product's title as the person who made it names it, the ADROIT logo standing for the word.
             var title = Text.Make(c, TitleAfterLogo, UIStyle.Display * 0.82f, Pal.Ink, TextAlignmentOptions.TopLeft, Home.Size.x - UIStyle.Pad * 2, 0.14f, "Figtree-ExtraBold", true, new Vector3(0, top - 0.165f, 0));
             LogoInTitle(title);
             Text.Make(c, Product + "  ·  " + Author, UIStyle.Small, Pal.InkSoft, TextAlignmentOptions.TopLeft, Home.Size.x - UIStyle.Pad * 2, 0.03f, "Figtree-Medium", true, new Vector3(0, top - 0.262f, 0));
@@ -83,14 +83,13 @@ namespace Bridge.UI
             status = Text.Make(c, "", UIStyle.Tiny, Pal.InkSoft, TextAlignmentOptions.Right, 0.6f, 0.05f, "Figtree-Medium", true, new Vector3(Home.Size.x / 2 - UIStyle.Pad - 0.3f, -Home.Top + 0.07f, 0));
         }
 
-        // The logo's own proportions (wordmark_graphite.png, 778 x 184 px): its letters fill rows 56 to 183
-        // and stand on the bottom edge, ending at column 718; the orange bar rides above the E.
-        public const float LogoAspect = 778f / 184f;
-        const float LogoLetters = 128f / 184f, LogoInk = 718f / 778f;
+        // The logo's own proportions (wordmark_graphite.png, 1731 x 327 px): its letters fill it, edge to edge.
+        public const float LogoAspect = 1731f / 327f;
+        const float LogoLetters = 1f, LogoInk = 1f;
         const string TitleAfterLogo = "Next-Gen Factory Digital Twin Simulation for Robotics";
 
         /// <summary>
-        /// Sets the BRIDGE logo where the title's first word would be: its letters as tall as the title's
+        /// Sets the ADROIT logo where the title's first word would be: its letters as tall as the title's
         /// capitals and on the same baseline, and the rest of the title after it.
         /// </summary>
         static void LogoInTitle(TextMeshPro title)
@@ -326,7 +325,7 @@ namespace Bridge.UI
             Window = Window.Make(app.UIRoot, "pendant", new Vector2(W, H), null, null, null, true);
             var c = Window.Content;
             // Header: the wordmark, the cell's state, and three tabs.
-            var mark = Go.Mesh("wordmark", c, MeshKit.Quad(), Menus.Wordmark, new Vector3(-W / 2 + 0.05f, H / 2 - 0.022f, -0.003f), null, new Vector3(0.016f * Menus.LogoAspect, 0.016f, 1), cast: false, layer: Layers.UI);
+            var mark = Go.Mesh("wordmark", c, MeshKit.Quad(), Menus.Wordmark, new Vector3(-W / 2 + 0.05f, H / 2 - 0.022f, -0.003f), null, new Vector3(0.0115f * Menus.LogoAspect, 0.0115f, 1), cast: false, layer: Layers.UI);
             var state = Text.Make(c, "", UIStyle.Tiny, Pal.InkSoft, TextAlignmentOptions.Right, 0.2f, 0.02f, "Figtree-Bold", false, new Vector3(W / 2 - 0.11f, H / 2 - 0.022f, 0));
             refresh.Add(() => state.text = StateLine());
             string[] names = { "jog", "program", "safety" };

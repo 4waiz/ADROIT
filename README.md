@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="light.png" />
-    <img alt="BRIDGE" src="dark.png" width="360" />
+    <img alt="ADROIT" src="dark.png" width="360" />
   </picture>
 </p>
 

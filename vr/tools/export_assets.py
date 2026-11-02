@@ -9,7 +9,7 @@ The VR app draws what the web app draws, from the same files:
 - the graphics the web app paints on canvases (signs, hazard stripes, floor
   lettering, cartons), drawn by a port of ``frontend/src/viewport/factory/textures.ts``
   in headless Microsoft Edge,
-- the BRIDGE wordmarks, the Figtree and IBM Plex Mono fonts and lucide icons the
+- the ADROIT wordmarks, the Figtree and IBM Plex Mono fonts and lucide icons the
   page uses.
 
 Everything is written under ``<out>`` (the Unity project's ``Assets/BridgeGen``):
@@ -701,9 +701,9 @@ CANVAS_LAYOUT = {
     "floor_machining": (1024, 896, 1024, 256),
     "floor_lab": (0, 1152, 1024, 256),
     "floor_twin": (1024, 1152, 1024, 256),
-    "wall_logo": (0, 1408, 1234, 352),
+    "wall_logo": (0, 1408, 1811, 407),
 }
-CANVAS_PAGE = (2048, 1760)
+CANVAS_PAGE = (2048, 1816)
 
 
 def export_canvas_textures(gen: Path, tools: Path) -> None:

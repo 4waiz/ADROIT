@@ -309,9 +309,9 @@ export class ScreenTexture {
     g.fillStyle = "#151a20";
     g.fillRect(0, 0, w, 64);
     if (this.logo) {
-      const lh = 26;
+      const lh = 19;
       const lw = (this.logo.width / this.logo.height) * lh;
-      g.drawImage(this.logo, 22, 19, lw, lh);
+      g.drawImage(this.logo, 22, 26, lw, lh);
     }
     g.fillStyle = "#ff4713";
     g.fillRect(0, 62, w, 3);

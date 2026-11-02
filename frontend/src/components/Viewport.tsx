@@ -509,7 +509,7 @@ export function Viewport() {
       {(status?.phase === "building" || sceneLoading || !manifest || connection !== "open") && (
         <div className="viewport-overlay">
           <div className="loader" role="status" aria-live="polite">
-            <Logo height={26} />
+            <Logo height={19} />
             {connection !== "open" ? (
               <>
                 <div className="bar" />

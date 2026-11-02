@@ -87,12 +87,11 @@ namespace Bridge.App
             return img;
         }
 
-        // The white logo's own proportions (wordmark_white.png, 1154 x 272 px): its letters fill rows 82 to 271
-        // and stand on the bottom edge, ending at column 1065; the orange bar rides above the E.
-        const float LogoAspect = 1154f / 272f, LogoLetters = 190f / 272f, LogoInk = 1065f / 1154f;
+        // The white logo's own proportions (wordmark_white.png, 1731 x 327 px): its letters fill it, edge to edge.
+        const float LogoAspect = 1731f / 327f, LogoLetters = 1f, LogoInk = 1f;
 
         /// <summary>
-        /// Puts the white BRIDGE logo where a line's first word would be: its letters as tall as the
+        /// Puts the white ADROIT logo where a line's first word would be: its letters as tall as the
         /// text's capitals and on the same baseline, and <paramref name="rest"/> after it.
         /// </summary>
         static void LogoBeforeText(TextMeshProUGUI text, string rest)

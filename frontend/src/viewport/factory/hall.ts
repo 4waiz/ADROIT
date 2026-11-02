@@ -412,7 +412,7 @@ export function buildHall(m: Materials, props: Props, logoUrl: string): THREE.Gr
 
   // The wordmark on a dark plate on the north wall, above the machine line.
   wallGraphic(logoUrl, (tex, aspect) => {
-    const h = 1.3;
+    const h = 0.95;
     const w = h * aspect;
     const plate = new THREE.Mesh(new THREE.BoxGeometry(w + 0.9, 0.06, h + 0.6), m.paint(0x1b1f24, 0.55, 0.3));
     plate.position.set(-6.5, HALL.y1 - 0.22, 5.0);

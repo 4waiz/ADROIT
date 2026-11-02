@@ -19,7 +19,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    // The BRIDGE wordmark lives at the repository root (light.png, dark.png).
+    // The ADROIT wordmark lives at the repository root (light.png, dark.png).
     fs: { allow: [repoRoot] },
     proxy: {
       "/api": "http://127.0.0.1:8800",

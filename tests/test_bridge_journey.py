@@ -161,7 +161,7 @@ class TestBridgeJourney(unittest.TestCase):
             page.wait_for_function(
                 "window.__BRIDGE__ && window.__BRIDGE__.state().connection === 'open'", timeout=30000
             )
-            self.assertIn("BRIDGE", page.title())
+            self.assertIn("ADROIT", page.title())
 
             # 2. A real simulated workcell appears: the manifest is loaded and frames arrive.
             page.wait_for_function("window.__BRIDGE__.manifest() && window.__BRIDGE__.frame()", timeout=60000)

@@ -55,7 +55,7 @@ export function AboutDialog() {
       {tab === "about" ? (
         <div className="prose">
           <div className="row" style={{ gap: 14, marginBottom: 12 }}>
-            <Logo height={30} />
+            <Logo height={22} />
             <div>
               <div style={{ fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", fontSize: 13 }}>{t("app.title")}</div>
               <div className="muted" style={{ fontSize: 12 }}>{t("app.subtitle")} · v{info?.version ?? "0.1.0"}</div>

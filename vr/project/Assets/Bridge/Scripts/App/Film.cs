@@ -689,7 +689,7 @@ namespace Bridge.App
                 },
             };
 
-            // The main menu up close: the title with the BRIDGE logo.
+            // The main menu up close: the title with the ADROIT logo.
             yield return new Take
             {
                 Name = "home_logo", Seconds = 8,

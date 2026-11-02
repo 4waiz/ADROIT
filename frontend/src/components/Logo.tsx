@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LicenseRef-BRIDGE
-// The BRIDGE wordmark, as supplied: light.png (white glyphs) on the dark theme, dark.png
+// The ADROIT wordmark, as supplied: light.png (white glyphs) on the dark theme, dark.png
 // (graphite glyphs) on the light theme. Never recoloured, never stretched.
 
 import darkLogo from "../../../dark.png";
@@ -12,7 +12,7 @@ export function Logo({ className = "brand-logo", height }: { className?: string;
     <img
       className={className}
       src={theme === "dark" ? lightLogo : darkLogo}
-      alt="BRIDGE"
+      alt="ADROIT"
       style={height ? { height } : undefined}
       draggable={false}
     />
